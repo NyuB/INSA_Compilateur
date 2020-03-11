@@ -4,6 +4,7 @@
 LETTER [a-zA-Z]
 DIGIT [0-9]
 INT {DIGIT}+
+PRINTF printf
 NAME {LETTER}({LETTER}|_|{DIGIT})*
 SPACE [ \t\b]+
 RET [\n]
@@ -21,9 +22,10 @@ AOPEN \{
 ACLOSE \}
 COPEN \[
 CCLOSE \]
+COMMA ,
 
 MAIN main
-PRINTF printf
+
 
 %%
 
@@ -46,6 +48,7 @@ PRINTF printf
 {NAME} {printf("t_name");return T_NAME;}
 {SPACE} {printf(" ");}
 {SEP} {printf(" t_sep ");return T_SEP;}
+{COMMA} {printf(" T_comma ");return T_COMMA;}
 
 %%
 int yywrap() {}

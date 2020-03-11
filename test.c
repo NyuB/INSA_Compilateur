@@ -1,10 +1,1 @@
-main (){
-    int maina;
-    const const_a = 5;
-    int int_a;
-    int 54151b;
-    a=1;
-    b=const_a+int_a;
-    printf(a);
-    printf(b);
-}
+main(){ int i, j,k,r;i =3;j=4;k=8;printf(i);r=(i+j)*(i+k/j);printf(r);}
