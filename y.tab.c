@@ -68,8 +68,9 @@
 #line 5 "tokens.y" /* yacc.c:339  */
 
     int yydebug=1;
+    FILE * file;
 
-#line 73 "y.tab.c" /* yacc.c:339  */
+#line 74 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -162,7 +163,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 166 "y.tab.c" /* yacc.c:358  */
+#line 167 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -461,9 +462,9 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    17,    17,    19,    21,    22,    23,    25,    26,    27,
-      28,    30,    31,    32,    33,    35,    36,    37,    38,    39,
-      40,    42,    44,    45,    47,    48,    49
+       0,    18,    18,    20,    22,    23,    24,    26,    27,    28,
+      29,    31,    32,    33,    34,    36,    37,    38,    39,    40,
+      41,    43,    45,    46,    48,    49,    50
 };
 #endif
 
@@ -1261,103 +1262,103 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 17 "tokens.y" /* yacc.c:1646  */
+#line 18 "tokens.y" /* yacc.c:1646  */
     {printf("MAIN\n");}
-#line 1267 "y.tab.c" /* yacc.c:1646  */
+#line 1268 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 19 "tokens.y" /* yacc.c:1646  */
+#line 20 "tokens.y" /* yacc.c:1646  */
     {printf("{BODY}");}
-#line 1273 "y.tab.c" /* yacc.c:1646  */
+#line 1274 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 30 "tokens.y" /* yacc.c:1646  */
+#line 31 "tokens.y" /* yacc.c:1646  */
     {(yyval)=1;}
-#line 1279 "y.tab.c" /* yacc.c:1646  */
+#line 1280 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 31 "tokens.y" /* yacc.c:1646  */
+#line 32 "tokens.y" /* yacc.c:1646  */
     {(yyval)=3;}
-#line 1285 "y.tab.c" /* yacc.c:1646  */
+#line 1286 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 32 "tokens.y" /* yacc.c:1646  */
+#line 33 "tokens.y" /* yacc.c:1646  */
     {(yyval)=2;}
-#line 1291 "y.tab.c" /* yacc.c:1646  */
+#line 1292 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 33 "tokens.y" /* yacc.c:1646  */
+#line 34 "tokens.y" /* yacc.c:1646  */
     {(yyval)=4;}
-#line 1297 "y.tab.c" /* yacc.c:1646  */
+#line 1298 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 35 "tokens.y" /* yacc.c:1646  */
+#line 36 "tokens.y" /* yacc.c:1646  */
     {printf("NAME-EXPR\n");(yyval)=T_NAME;}
-#line 1303 "y.tab.c" /* yacc.c:1646  */
+#line 1304 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 36 "tokens.y" /* yacc.c:1646  */
+#line 37 "tokens.y" /* yacc.c:1646  */
     {(yyval)=(yyvsp[-1]);}
-#line 1309 "y.tab.c" /* yacc.c:1646  */
+#line 1310 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 37 "tokens.y" /* yacc.c:1646  */
+#line 38 "tokens.y" /* yacc.c:1646  */
     {printf("INT-EXPR\n");(yyval)=T_INT;}
-#line 1315 "y.tab.c" /* yacc.c:1646  */
+#line 1316 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 38 "tokens.y" /* yacc.c:1646  */
-    {printf("EXPR\n");ASM_write((yyvsp[-1]));ASM_write(-1);ASM_write((yyvsp[-2]));ASM_write((yyvsp[0]));ASM_endline();(yyval)=-1;}
-#line 1321 "y.tab.c" /* yacc.c:1646  */
+#line 39 "tokens.y" /* yacc.c:1646  */
+    {printf("EXPR\n");ASM_write((yyvsp[-1]));ASM_write(99999);ASM_write((yyvsp[-2]));ASM_write((yyvsp[0]));ASM_endline();(yyval)=-1;}
+#line 1322 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 39 "tokens.y" /* yacc.c:1646  */
+#line 40 "tokens.y" /* yacc.c:1646  */
     {printf("MIN-EXPR\n");}
-#line 1327 "y.tab.c" /* yacc.c:1646  */
+#line 1328 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 40 "tokens.y" /* yacc.c:1646  */
+#line 41 "tokens.y" /* yacc.c:1646  */
     {printf("PLUS-EXPR\n");}
-#line 1333 "y.tab.c" /* yacc.c:1646  */
+#line 1334 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 42 "tokens.y" /* yacc.c:1646  */
+#line 43 "tokens.y" /* yacc.c:1646  */
     {ASM_write(T_PRINTF);}
-#line 1339 "y.tab.c" /* yacc.c:1646  */
+#line 1340 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 47 "tokens.y" /* yacc.c:1646  */
+#line 48 "tokens.y" /* yacc.c:1646  */
     {printf("DCLR-ASSIGN\n");}
-#line 1345 "y.tab.c" /* yacc.c:1646  */
+#line 1346 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 48 "tokens.y" /* yacc.c:1646  */
+#line 49 "tokens.y" /* yacc.c:1646  */
     {printf("DCLR\n");}
-#line 1351 "y.tab.c" /* yacc.c:1646  */
+#line 1352 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 49 "tokens.y" /* yacc.c:1646  */
+#line 50 "tokens.y" /* yacc.c:1646  */
     {printf("ASSIGN\n");}
-#line 1357 "y.tab.c" /* yacc.c:1646  */
+#line 1358 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1361 "y.tab.c" /* yacc.c:1646  */
+#line 1362 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1585,7 +1586,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 53 "tokens.y" /* yacc.c:1906  */
+#line 54 "tokens.y" /* yacc.c:1906  */
 
 int yyerror(char *msg){
     fprintf(stderr, "err: %s\n", msg);
@@ -1602,7 +1603,7 @@ void ASM_endline(){
 
 int main(void){
     const char * filename = "./assembly.asm";
-    FILE * file = fopen(filename,"w");
+    file = fopen(filename,"w");
     yyparse();
     fclose(file);
     
