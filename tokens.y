@@ -46,9 +46,10 @@ T_NAMELIST : T_NAME
            |T_NAME T_COMMA T_NAMELIST;
 
 declare_assignement : T_VAR T_NAME T_EQ T_NAME {ASM_write(5); ASM_write($2); ASM_write($4);ASM_endline();}
-                    |T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");ASM_write(5); ASM_write($2); ASM_write($4); ASM_endline();}
+                    |T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");ASM_write(5); ASM_write($2); ASM_write($4); ASM_endline();};
+declaration : T_VAR T_NAME{printf("DECLARATION");};
 assignement : T_NAME T_EQ T_NAME{printf("ASSIGN_NAME");ASM_write(5),ASM_write($1),ASM_write($3);ASM_endline();}
-            | T_NAME T_EQ EXPR{printf("ASSIGN\n");ASM_write(5),ASM_write($1),ASM_write($3);ASM_endline();};
+            | T_NAME T_EQ EXPR{printf("ASSIGN\n"); ASM_write(5); ASM_write($1); ASM_write($3); ASM_endline();};
 
 
 
