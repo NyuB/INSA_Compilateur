@@ -19,7 +19,7 @@ start : T_MAIN T_POPEN T_PCLOSE BLOC {printf("MAIN\n");};
 
 BLOC : T_AOPEN BODY T_ACLOSE {printf("{BODY}");};
 
-BODY : 
+BODY :
     |CMD
     |CMD T_SEP BODY ;
 
@@ -45,9 +45,11 @@ PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE {ASM_write(T_PRINTF);};
 T_NAMELIST : T_NAME
            |T_NAME T_COMMA T_NAMELIST;
 
-declare_assignement : T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");};
-declaration : T_VAR T_NAMELIST{printf("DCLR\n");};
-assignement : T_NAME T_EQ EXPR{printf("ASSIGN\n");};
+declare_assignement : T_VAR T_NAME T_EQ T_NAME {ASM_write(5); ASM_write($2); ASM_write($4);ASM_endline();}
+                    |T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");ASM_write(5); ASM_write($2); ASM_write($4); ASM_endline();}
+assignement : T_NAME T_EQ T_NAME{printf("ASSIGN_NAME");ASM_write(5),ASM_write($1),ASM_write($3);ASM_endline();}
+            | T_NAME T_EQ EXPR{printf("ASSIGN\n");ASM_write(5),ASM_write($1),ASM_write($3);ASM_endline();};
+
 
 
 
@@ -70,9 +72,6 @@ int main(void){
     file = fopen(filename,"w");
     yyparse();
     fclose(file);
-    
+
     return 0;
 }
-
-
-
