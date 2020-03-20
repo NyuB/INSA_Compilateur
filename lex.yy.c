@@ -823,12 +823,12 @@ YY_RULE_SETUP
 case 16:
 YY_RULE_SETUP
 #line 47 "lexer.l"
-{printf("t_int");return T_INT;}
+{printf("t_int");yylval.s=strdup(yytext);yylval.s = strdup(yytext);return T_INT;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 48 "lexer.l"
-{printf("t_name");return T_NAME;}
+{printf("t_name");yylval.s=strdup(yytext);yylval.s = strdup(yytext);return T_NAME;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP

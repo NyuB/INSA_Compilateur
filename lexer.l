@@ -44,8 +44,8 @@ MAIN main
 {ACLOSE} {printf(" t_aclose ");return T_ACLOSE;}
 {COPEN} {printf(" t_copen");return T_COPEN;}
 {CCLOSE} {printf(" t_cclose ");return T_CCLOSE;}
-{INT} {printf("t_int");yylval.s = strdup(yytext);return T_INT;}
-{NAME} {printf("t_name");yylval.s = strdup(yytext);return T_NAME;}
+{INT} {printf("t_int");yylval.s=strdup(yytext);yylval.s = strdup(yytext);return T_INT;}
+{NAME} {printf("t_name");yylval.s=strdup(yytext);yylval.s = strdup(yytext);return T_NAME;}
 {SPACE} {printf(" ");}
 {SEP} {printf(" t_sep ");return T_SEP;}
 {COMMA} {printf(" T_comma ");return T_COMMA;}
