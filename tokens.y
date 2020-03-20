@@ -1,10 +1,16 @@
 %{
 #include <stdio.h>
+#include "AST/name_list.h"
+#DEFINE MAX 63
 %}
+
 
 %{
     int yydebug=1;
     FILE * file;
+    int min =0;
+    int max = MAX;
+    name_list * namel;
 %}
 
 
@@ -33,7 +39,7 @@ OP: T_ADD {$$=1;}
     |T_MUL {$$=2;}
     |T_DIV {$$=4;};
 
-EXPR : T_NAME {printf("NAME-EXPR\n");$$=T_NAME;}
+EXPR : T_NAME {printf("NAME-EXPR\n");int index=contains(namel,yyval());printf(yytext);$$=index;}
     |T_POPEN EXPR T_PCLOSE {$$=$2;}
     |T_INT {printf("INT-EXPR\n");$$=T_INT;}
     |EXPR OP EXPR {printf("EXPR\n");ASM_write($2);ASM_write(-1);ASM_write($1);ASM_write($3);ASM_endline();$$=-1;}
@@ -46,8 +52,8 @@ T_NAMELIST : T_NAME
            |T_NAME T_COMMA T_NAMELIST;
 
 declare_assignement : T_VAR T_NAME T_EQ T_NAME {ASM_write(5); ASM_write($2); ASM_write($4);ASM_endline();}
-                    |T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");ASM_write(5); ASM_write($2); ASM_write($4); ASM_endline();};
-declaration : T_VAR T_NAMELIST{printf("DECLARATION");};
+                    |T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");;};
+declaration : T_VAR T_NAMELIST{printf("DECLARATION");min++;append(namel,yyval())};
 assignement : T_NAME T_EQ T_NAME{printf("ASSIGN_NAME");ASM_write(5),ASM_write($1),ASM_write($3);ASM_endline();}
             | T_NAME T_EQ EXPR{printf("ASSIGN\n"); ASM_write(5); ASM_write($1); ASM_write($3); ASM_endline();};
 
