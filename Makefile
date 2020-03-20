@@ -12,7 +12,11 @@ comp : lex.yy.c y.tab.c
 lex.yy.c : lexer.l
 	${LEX} lexer.l
 
-y.tab.c : AST/name_list.h AST/name_list.c tokens.y
-	${YACC} ${YACCFLAGS} AST/Name_list.c -IAST/name_list.h tokens.y
+y.tab.c : name_list.o AST/name_list.h tokens.y
+	${YACC} ${YACCFLAGS} tokens.y
+
+name_list.o : AST/name_list.c AST/name_list.h
+	${CC} ${CCFLAGS} -c AST/name_list.c
+
 
 
