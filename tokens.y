@@ -6,10 +6,10 @@ typedef struct name_cell {
 	struct name_cell * suiv;
 }name_cell;
 
-struct name_list{
+typedef struct name_list{
 	name_cell * start;
 	name_cell * end;
-};
+}name_list;
 
 void myncpy(char * dest,char * src,int n){
 	for(int i=0;i<n;i++){
