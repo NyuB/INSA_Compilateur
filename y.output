@@ -46,7 +46,7 @@ Grammaire
 
    24 declaration: T_VAR T_NAMELIST
 
-   25 assignement: T_NAME T_EQ T_NAME
+   25 assignement: T_NAME T_EQ EXPR
 
 
 Terminaux, suivis des règles où ils apparaissent
@@ -89,7 +89,7 @@ CMD (26)
 OP (27)
     à gauche: 10 11 12 13, à droite: 17
 EXPR (28)
-    à gauche: 14 15 16 17 18 19, à droite: 15 17 18 19 20 23
+    à gauche: 14 15 16 17 18 19, à droite: 15 17 18 19 20 23 25
 PRINT (29)
     à gauche: 20, à droite: 9
 T_NAMELIST (30)
@@ -192,7 +192,7 @@ assignement (33)
 
 État 10
 
-   25 assignement: T_NAME . T_EQ T_NAME
+   25 assignement: T_NAME . T_EQ EXPR
 
     T_EQ  décalage et aller à l'état 20
 
@@ -276,9 +276,15 @@ assignement (33)
 
 État 20
 
-   25 assignement: T_NAME T_EQ . T_NAME
+   25 assignement: T_NAME T_EQ . EXPR
 
-    T_NAME  décalage et aller à l'état 31
+    T_ADD    décalage et aller à l'état 23
+    T_SUB    décalage et aller à l'état 24
+    T_POPEN  décalage et aller à l'état 25
+    T_INT    décalage et aller à l'état 26
+    T_NAME   décalage et aller à l'état 27
+
+    EXPR  aller à l'état 31
 
 
 État 21
@@ -397,9 +403,17 @@ assignement (33)
 
 État 31
 
-   25 assignement: T_NAME T_EQ T_NAME .
+   17 EXPR: EXPR . OP EXPR
+   25 assignement: T_NAME T_EQ EXPR .
+
+    T_ADD  décalage et aller à l'état 36
+    T_SUB  décalage et aller à l'état 37
+    T_MUL  décalage et aller à l'état 38
+    T_DIV  décalage et aller à l'état 39
 
     $défaut  réduction par utilisation de la règle 25 (assignement)
+
+    OP  aller à l'état 41
 
 
 État 32
