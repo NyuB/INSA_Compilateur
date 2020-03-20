@@ -102,7 +102,7 @@ OP: T_ADD {$$=1;}
     |T_MUL {$$=2;}
     |T_DIV {$$=4;};
 
-EXPR : T_NAME {printf("NAME-EXPR\n");int index=nli_contains(namel,yyval);printf("Text ici");$$=index;}
+EXPR : T_NAME {printf("NAME-EXPR\n");int index=nli_contains(namel,"NONE");printf("Text ici");$$=index;}
     |T_POPEN EXPR T_PCLOSE {$$=$2;}
     |T_INT {printf("INT-EXPR\n");$$=T_INT;}
     |EXPR OP EXPR {printf("EXPR\n");ASM_write($2);ASM_write(-1);ASM_write($1);ASM_write($3);ASM_endline();$$=-1;}
@@ -114,9 +114,8 @@ PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE {ASM_write(T_PRINTF);};
 T_NAMELIST : T_NAME
            |T_NAME T_COMMA T_NAMELIST;
 
-declare_assignement : T_VAR T_NAME T_EQ T_NAME {ASM_write(5); ASM_write($2); ASM_write($4);ASM_endline();}
-                    |T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");;};
-declaration : T_VAR T_NAMELIST{printf("DECLARATION");min++;nli_append(namel,yyval);};
+declare_assignement : T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");};
+declaration : T_VAR T_NAMELIST{printf("DECLARATION");min++;nli_append(namel,"NONE");};
 assignement : T_NAME T_EQ T_NAME{printf("ASSIGN_NAME");ASM_write(5),ASM_write($1),ASM_write($3);ASM_endline();}
             
 
