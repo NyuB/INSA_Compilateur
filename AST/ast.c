@@ -83,39 +83,61 @@ ast * ast_new(ast_node * root){
 	return tree;
 }
 
-void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
-	ast_node_cell * left;
-	ast_node_cell * right;
-	ast_node_cell * aux;
+void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file);
+
+void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
+	ast_node_cell * left = node->childs->start;
+	ast_node_cell * right = left->suiv;
 	int leftAddr;
 	int rightAddr;
+	if(left->node->code == AST_CODE_VAR){
+		leftAddr = nli_contains(var_list,(char *)(left->node->content));
+	}
+
+	else{
+		ast_node_build(left->node,var_list,left_addr_min,right_addr_max,file);
+		leftAddr = *((int*)(left->node->content));
+	}
+
+	if(left->node->code == AST_CODE_VAR){
+		rightAddr = nli_contains(var_list,(char *)(right->node->content));
+	}
+
+	else{
+		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);
+		rightAddr = *((int*)(right->node->content));
+	}
+
+	ast_write(file,op,*right_addr_max,leftAddr,rightAddr);
+	*right_addr_max--;
+
+}
+
+void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
 	switch(node->code){
 		case AST_CODE_ADD:
-			left = node->childs->start;
-			right = left->suiv;
-			if(left->node->code == AST_CODE_VAR){
-				leftAddr = nli_contains(var_list,(char *)(left->node->content));
-			}
-			else{
-				leftAddr = *((int*)(left->node->content));
-			}
-			if(left->node->code == AST_CODE_VAR){
-				rightAddr = nli_contains(var_list,(char *)(right->node->content));
-			}
-			else{
-				rightAddr = *((int*)(right->node->content));
-			}
-			ast_write(file,"ADD",*right_addr_max,leftAddr,rightAddr);
-			*right_addr_max--;
+			ast_math_build("ADD",node,var_list,left_addr_min,right_addr_max,file);
+			break;
+		case AST_CODE_MUL:
+			ast_math_build("MUL",node,var_list,left_addr_min,right_addr_max,file);
+			break;
+		case AST_CODE_SUB:
+			ast_math_build("SUB",node,var_list,left_addr_min,right_addr_max,file);
+			break;
+		case AST_CODE_DIV:
+			ast_math_build("DIV",node,var_list,left_addr_min,right_addr_max,file);
 			break;
 		case AST_CODE_AFF:
 			break;
 		case AST_CODE_DCL:
 			break;
+
 		case AST_CODE_SEQ:
 			break;
+
 		case AST_CODE_VAR:
 			break;
+
 		default:
 			break;
 	}
@@ -124,7 +146,7 @@ void ast_build(ast * tree,const char * filename){
 	FILE * file = fopen(filename,"w");
 	name_list * vars = nli_empty();
 	int minMem =0;
-	int maxMem = 100;
+	int maxMem = 200;
 	ast_node_build(tree->root,vars,&minMem,&maxMem,file);
 	fclose(file);
 }
