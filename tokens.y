@@ -104,10 +104,10 @@ OP: T_ADD {$$=1;}
 
 EXPR : T_NAME {printf("NAME-EXPR\n");int index=nli_contains(namel,"NONE");printf("Text ici");$$=index;}
     |T_POPEN EXPR T_PCLOSE {$$=$2;}
-    |T_INT {printf("INT-EXPR\n");$$=T_INT;}
-    |EXPR OP EXPR {printf("EXPR\n");ASM_write($2);ASM_write(-1);ASM_write($1);ASM_write($3);ASM_endline();$$=-1;}
-    |T_SUB EXPR {printf("MIN-EXPR\n");}
-    |T_ADD EXPR {printf("PLUS-EXPR\n");};
+    |T_INT {printf("INT-EXPR\n");int index=nli_contains(namel,"NONE");$$=index;}
+    |EXPR OP EXPR {printf("EXPR\n");int a=$1; int op=$2; int b=$3; int index=max;ASM_write(op);ASM_write(max);ASM_write(a);ASM_write(b);ASM_endline();max--;$$=index;}
+    |T_SUB EXPR {printf("MIN-EXPR\n");int index=max;int a=0; int op=$2; int b=$3;ASM_write(op);ASM_write(max);ASM_write(a);ASM_write(b);ASM_endline();max--;$$=index; }
+    |T_ADD EXPR {printf("PLUS-EXPR\n");int index=max;int a=0; int op=$2; int b=$3;ASM_write(op);ASM_write(max);ASM_write(a);ASM_write(b);ASM_endline();max--;$$=index;};
 
 PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE {ASM_write(T_PRINTF);};
 
