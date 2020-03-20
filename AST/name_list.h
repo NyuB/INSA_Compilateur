@@ -15,4 +15,6 @@ void nli_append(name_list * list, char * name);
 
 void nli_display(name_list * list);
 
+void myncpy(char * dest,char * src,int n);
+
 #endif

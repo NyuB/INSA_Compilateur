@@ -25,17 +25,19 @@ int main(int argc, char ** argv)
 	ast_node * b_dcl = ast_declare("b");
 	ast_node * a = ast_var("a");
 	ast_node * b = ast_var("b");
-	ast_node * plus = ast_math(1,a,b);
 	ast_node * a_bis = ast_var("a");
-	ast_node * a_asn = ast_affect(a_bis,plus);
+	ast_node * b_bis = ast_var("b");
+	ast_node * plus = ast_math(1,a,b);
+	ast_node * mul = ast_math(2,plus,b_bis);
+	
+	ast_node * a_asn = ast_affect(a_bis,mul);
 	ast_node_list * ast_list = ast_node_list_empty();
 	ast_node_list_append(ast_list,a_dcl);
 	ast_node_list_append(ast_list,b_dcl);
 	ast_node_list_append(ast_list,a_asn);
 	ast * tree = ast_new(ast_node_seq(ast_list));
 	ast_display(tree);
-	ast * tree_bis = ast_new(plus);
-	ast_build(tree_bis,"assembly.asm");
+	ast_build(tree,"assembly.asm",200);
 
 	/*
 	*/
