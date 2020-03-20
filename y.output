@@ -5,7 +5,9 @@ Terminaux inutilisés dans la grammaire
    T_CCLOSE
 
 
-État 46 conflits: 4 décalage/réduction
+État 33 conflits: 4 réduction/réduction
+État 34 conflits: 4 réduction/réduction
+État 47 conflits: 4 réduction/réduction
 
 
 Grammaire
@@ -33,20 +35,23 @@ Grammaire
    14 EXPR: T_NAME
    15     | T_POPEN EXPR T_PCLOSE
    16     | T_INT
-   17     | EXPR OP EXPR
-   18     | T_SUB EXPR
-   19     | T_ADD EXPR
 
-   20 PRINT: T_PRINTF T_POPEN EXPR T_PCLOSE
+   17 @1: %empty
 
-   21 T_NAMELIST: T_NAME
-   22           | T_NAME T_COMMA T_NAMELIST
+   18 EXPR: EXPR @1 OP EXPR
+   19     | T_SUB EXPR
+   20     | T_ADD EXPR
 
-   23 declare_assignement: T_VAR T_NAME T_EQ EXPR
+   21 PRINT: T_PRINTF T_POPEN EXPR T_PCLOSE
 
-   24 declaration: T_VAR T_NAMELIST
+   22 T_NAMELIST: T_NAME
+   23           | T_NAME T_COMMA T_NAMELIST
 
-   25 assignement: T_NAME T_EQ EXPR
+   24 declare_assignement: T_VAR T_NAME T_EQ EXPR
+
+   25 declaration: T_VAR T_NAMELIST
+
+   26 assignement: T_NAME T_EQ EXPR
 
 
 Terminaux, suivis des règles où ils apparaissent
@@ -54,24 +59,24 @@ Terminaux, suivis des règles où ils apparaissent
 $end (0) 0
 error (256)
 T_MAIN (258) 1
-T_PRINTF (259) 20
+T_PRINTF (259) 21
 T_CONST (260)
-T_VAR (261) 23 24
-T_ADD (262) 10 19
-T_SUB (263) 11 18
+T_VAR (261) 24 25
+T_ADD (262) 10 20
+T_SUB (263) 11 19
 T_MUL (264) 12
 T_DIV (265) 13
-T_EQ (266) 23 25
-T_POPEN (267) 1 15 20
-T_PCLOSE (268) 1 15 20
+T_EQ (266) 24 26
+T_POPEN (267) 1 15 21
+T_PCLOSE (268) 1 15 21
 T_AOPEN (269) 2
 T_ACLOSE (270) 2
 T_COPEN (271)
 T_CCLOSE (272)
 T_INT (273) 16
-T_NAME (274) 14 21 22 23 25
+T_NAME (274) 14 22 23 24 26
 T_SEP (275) 5
-T_COMMA (276) 22
+T_COMMA (276) 23
 
 
 Non-terminaux, suivis des règles où ils apparaissent
@@ -87,19 +92,21 @@ BODY (25)
 CMD (26)
     à gauche: 6 7 8 9, à droite: 4 5
 OP (27)
-    à gauche: 10 11 12 13, à droite: 17
+    à gauche: 10 11 12 13, à droite: 18
 EXPR (28)
-    à gauche: 14 15 16 17 18 19, à droite: 15 17 18 19 20 23 25
-PRINT (29)
-    à gauche: 20, à droite: 9
-T_NAMELIST (30)
-    à gauche: 21 22, à droite: 22 24
-declare_assignement (31)
-    à gauche: 23, à droite: 6
-declaration (32)
-    à gauche: 24, à droite: 7
-assignement (33)
-    à gauche: 25, à droite: 8
+    à gauche: 14 15 16 18 19 20, à droite: 15 18 19 20 21 24 26
+@1 (29)
+    à gauche: 17, à droite: 18
+PRINT (30)
+    à gauche: 21, à droite: 9
+T_NAMELIST (31)
+    à gauche: 22 23, à droite: 23 25
+declare_assignement (32)
+    à gauche: 24, à droite: 6
+declaration (33)
+    à gauche: 25, à droite: 7
+assignement (34)
+    à gauche: 26, à droite: 8
 
 
 État 0
@@ -175,15 +182,15 @@ assignement (33)
 
 État 8
 
-   20 PRINT: T_PRINTF . T_POPEN EXPR T_PCLOSE
+   21 PRINT: T_PRINTF . T_POPEN EXPR T_PCLOSE
 
     T_POPEN  décalage et aller à l'état 17
 
 
 État 9
 
-   23 declare_assignement: T_VAR . T_NAME T_EQ EXPR
-   24 declaration: T_VAR . T_NAMELIST
+   24 declare_assignement: T_VAR . T_NAME T_EQ EXPR
+   25 declaration: T_VAR . T_NAMELIST
 
     T_NAME  décalage et aller à l'état 18
 
@@ -192,7 +199,7 @@ assignement (33)
 
 État 10
 
-   25 assignement: T_NAME . T_EQ EXPR
+   26 assignement: T_NAME . T_EQ EXPR
 
     T_EQ  décalage et aller à l'état 20
 
@@ -244,7 +251,7 @@ assignement (33)
 
 État 17
 
-   20 PRINT: T_PRINTF T_POPEN . EXPR T_PCLOSE
+   21 PRINT: T_PRINTF T_POPEN . EXPR T_PCLOSE
 
     T_ADD    décalage et aller à l'état 23
     T_SUB    décalage et aller à l'état 24
@@ -257,26 +264,26 @@ assignement (33)
 
 État 18
 
-   21 T_NAMELIST: T_NAME .
-   22           | T_NAME . T_COMMA T_NAMELIST
-   23 declare_assignement: T_VAR T_NAME . T_EQ EXPR
+   22 T_NAMELIST: T_NAME .
+   23           | T_NAME . T_COMMA T_NAMELIST
+   24 declare_assignement: T_VAR T_NAME . T_EQ EXPR
 
     T_EQ     décalage et aller à l'état 29
     T_COMMA  décalage et aller à l'état 30
 
-    $défaut  réduction par utilisation de la règle 21 (T_NAMELIST)
+    $défaut  réduction par utilisation de la règle 22 (T_NAMELIST)
 
 
 État 19
 
-   24 declaration: T_VAR T_NAMELIST .
+   25 declaration: T_VAR T_NAMELIST .
 
-    $défaut  réduction par utilisation de la règle 24 (declaration)
+    $défaut  réduction par utilisation de la règle 25 (declaration)
 
 
 État 20
 
-   25 assignement: T_NAME T_EQ . EXPR
+   26 assignement: T_NAME T_EQ . EXPR
 
     T_ADD    décalage et aller à l'état 23
     T_SUB    décalage et aller à l'état 24
@@ -314,7 +321,7 @@ assignement (33)
 
 État 23
 
-   19 EXPR: T_ADD . EXPR
+   20 EXPR: T_ADD . EXPR
 
     T_ADD    décalage et aller à l'état 23
     T_SUB    décalage et aller à l'état 24
@@ -327,7 +334,7 @@ assignement (33)
 
 État 24
 
-   18 EXPR: T_SUB . EXPR
+   19 EXPR: T_SUB . EXPR
 
     T_ADD    décalage et aller à l'état 23
     T_SUB    décalage et aller à l'état 24
@@ -367,21 +374,19 @@ assignement (33)
 
 État 28
 
-   17 EXPR: EXPR . OP EXPR
-   20 PRINT: T_PRINTF T_POPEN EXPR . T_PCLOSE
+   18 EXPR: EXPR . @1 OP EXPR
+   21 PRINT: T_PRINTF T_POPEN EXPR . T_PCLOSE
 
-    T_ADD     décalage et aller à l'état 36
-    T_SUB     décalage et aller à l'état 37
-    T_MUL     décalage et aller à l'état 38
-    T_DIV     décalage et aller à l'état 39
-    T_PCLOSE  décalage et aller à l'état 40
+    T_PCLOSE  décalage et aller à l'état 36
 
-    OP  aller à l'état 41
+    $défaut  réduction par utilisation de la règle 17 (@1)
+
+    @1  aller à l'état 37
 
 
 État 29
 
-   23 declare_assignement: T_VAR T_NAME T_EQ . EXPR
+   24 declare_assignement: T_VAR T_NAME T_EQ . EXPR
 
     T_ADD    décalage et aller à l'état 23
     T_SUB    décalage et aller à l'état 24
@@ -389,31 +394,28 @@ assignement (33)
     T_INT    décalage et aller à l'état 26
     T_NAME   décalage et aller à l'état 27
 
-    EXPR  aller à l'état 42
+    EXPR  aller à l'état 38
 
 
 État 30
 
-   22 T_NAMELIST: T_NAME T_COMMA . T_NAMELIST
+   23 T_NAMELIST: T_NAME T_COMMA . T_NAMELIST
 
-    T_NAME  décalage et aller à l'état 43
+    T_NAME  décalage et aller à l'état 39
 
-    T_NAMELIST  aller à l'état 44
+    T_NAMELIST  aller à l'état 40
 
 
 État 31
 
-   17 EXPR: EXPR . OP EXPR
-   25 assignement: T_NAME T_EQ EXPR .
+   18 EXPR: EXPR . @1 OP EXPR
+   26 assignement: T_NAME T_EQ EXPR .
 
-    T_ADD  décalage et aller à l'état 36
-    T_SUB  décalage et aller à l'état 37
-    T_MUL  décalage et aller à l'état 38
-    T_DIV  décalage et aller à l'état 39
+    T_ACLOSE  réduction par utilisation de la règle 26 (assignement)
+    T_SEP     réduction par utilisation de la règle 26 (assignement)
+    $défaut  réduction par utilisation de la règle 17 (@1)
 
-    $défaut  réduction par utilisation de la règle 25 (assignement)
-
-    OP  aller à l'état 41
+    @1  aller à l'état 37
 
 
 État 32
@@ -425,76 +427,144 @@ assignement (33)
 
 État 33
 
-   17 EXPR: EXPR . OP EXPR
-   19     | T_ADD EXPR .
+   18 EXPR: EXPR . @1 OP EXPR
+   20     | T_ADD EXPR .
 
-    $défaut  réduction par utilisation de la règle 19 (EXPR)
+    T_ADD     réduction par utilisation de la règle 17 (@1)
+    T_ADD     [réduction par utilisation de la règle 20 (EXPR)]
+    T_SUB     réduction par utilisation de la règle 17 (@1)
+    T_SUB     [réduction par utilisation de la règle 20 (EXPR)]
+    T_MUL     réduction par utilisation de la règle 17 (@1)
+    T_MUL     [réduction par utilisation de la règle 20 (EXPR)]
+    T_DIV     réduction par utilisation de la règle 17 (@1)
+    T_DIV     [réduction par utilisation de la règle 20 (EXPR)]
+    T_PCLOSE  réduction par utilisation de la règle 20 (EXPR)
+    T_ACLOSE  réduction par utilisation de la règle 20 (EXPR)
+    T_SEP     réduction par utilisation de la règle 20 (EXPR)
+    $défaut  réduction par utilisation de la règle 17 (@1)
 
-    OP  aller à l'état 41
+    @1  aller à l'état 37
 
 
 État 34
 
-   17 EXPR: EXPR . OP EXPR
-   18     | T_SUB EXPR .
+   18 EXPR: EXPR . @1 OP EXPR
+   19     | T_SUB EXPR .
 
-    $défaut  réduction par utilisation de la règle 18 (EXPR)
+    T_ADD     réduction par utilisation de la règle 17 (@1)
+    T_ADD     [réduction par utilisation de la règle 19 (EXPR)]
+    T_SUB     réduction par utilisation de la règle 17 (@1)
+    T_SUB     [réduction par utilisation de la règle 19 (EXPR)]
+    T_MUL     réduction par utilisation de la règle 17 (@1)
+    T_MUL     [réduction par utilisation de la règle 19 (EXPR)]
+    T_DIV     réduction par utilisation de la règle 17 (@1)
+    T_DIV     [réduction par utilisation de la règle 19 (EXPR)]
+    T_PCLOSE  réduction par utilisation de la règle 19 (EXPR)
+    T_ACLOSE  réduction par utilisation de la règle 19 (EXPR)
+    T_SEP     réduction par utilisation de la règle 19 (EXPR)
+    $défaut  réduction par utilisation de la règle 17 (@1)
 
-    OP  aller à l'état 41
+    @1  aller à l'état 37
 
 
 État 35
 
    15 EXPR: T_POPEN EXPR . T_PCLOSE
-   17     | EXPR . OP EXPR
+   18     | EXPR . @1 OP EXPR
 
-    T_ADD     décalage et aller à l'état 36
-    T_SUB     décalage et aller à l'état 37
-    T_MUL     décalage et aller à l'état 38
-    T_DIV     décalage et aller à l'état 39
-    T_PCLOSE  décalage et aller à l'état 45
+    T_PCLOSE  décalage et aller à l'état 41
 
-    OP  aller à l'état 41
+    $défaut  réduction par utilisation de la règle 17 (@1)
+
+    @1  aller à l'état 37
 
 
 État 36
+
+   21 PRINT: T_PRINTF T_POPEN EXPR T_PCLOSE .
+
+    $défaut  réduction par utilisation de la règle 21 (PRINT)
+
+
+État 37
+
+   18 EXPR: EXPR @1 . OP EXPR
+
+    T_ADD  décalage et aller à l'état 42
+    T_SUB  décalage et aller à l'état 43
+    T_MUL  décalage et aller à l'état 44
+    T_DIV  décalage et aller à l'état 45
+
+    OP  aller à l'état 46
+
+
+État 38
+
+   18 EXPR: EXPR . @1 OP EXPR
+   24 declare_assignement: T_VAR T_NAME T_EQ EXPR .
+
+    T_ACLOSE  réduction par utilisation de la règle 24 (declare_assignement)
+    T_SEP     réduction par utilisation de la règle 24 (declare_assignement)
+    $défaut  réduction par utilisation de la règle 17 (@1)
+
+    @1  aller à l'état 37
+
+
+État 39
+
+   22 T_NAMELIST: T_NAME .
+   23           | T_NAME . T_COMMA T_NAMELIST
+
+    T_COMMA  décalage et aller à l'état 30
+
+    $défaut  réduction par utilisation de la règle 22 (T_NAMELIST)
+
+
+État 40
+
+   23 T_NAMELIST: T_NAME T_COMMA T_NAMELIST .
+
+    $défaut  réduction par utilisation de la règle 23 (T_NAMELIST)
+
+
+État 41
+
+   15 EXPR: T_POPEN EXPR T_PCLOSE .
+
+    $défaut  réduction par utilisation de la règle 15 (EXPR)
+
+
+État 42
 
    10 OP: T_ADD .
 
     $défaut  réduction par utilisation de la règle 10 (OP)
 
 
-État 37
+État 43
 
    11 OP: T_SUB .
 
     $défaut  réduction par utilisation de la règle 11 (OP)
 
 
-État 38
+État 44
 
    12 OP: T_MUL .
 
     $défaut  réduction par utilisation de la règle 12 (OP)
 
 
-État 39
+État 45
 
    13 OP: T_DIV .
 
     $défaut  réduction par utilisation de la règle 13 (OP)
 
 
-État 40
+État 46
 
-   20 PRINT: T_PRINTF T_POPEN EXPR T_PCLOSE .
-
-    $défaut  réduction par utilisation de la règle 20 (PRINT)
-
-
-État 41
-
-   17 EXPR: EXPR OP . EXPR
+   18 EXPR: EXPR @1 OP . EXPR
 
     T_ADD    décalage et aller à l'état 23
     T_SUB    décalage et aller à l'état 24
@@ -502,62 +572,25 @@ assignement (33)
     T_INT    décalage et aller à l'état 26
     T_NAME   décalage et aller à l'état 27
 
-    EXPR  aller à l'état 46
+    EXPR  aller à l'état 47
 
 
-État 42
+État 47
 
-   17 EXPR: EXPR . OP EXPR
-   23 declare_assignement: T_VAR T_NAME T_EQ EXPR .
+   18 EXPR: EXPR . @1 OP EXPR
+   18     | EXPR @1 OP EXPR .
 
-    T_ADD  décalage et aller à l'état 36
-    T_SUB  décalage et aller à l'état 37
-    T_MUL  décalage et aller à l'état 38
-    T_DIV  décalage et aller à l'état 39
+    T_ADD     réduction par utilisation de la règle 17 (@1)
+    T_ADD     [réduction par utilisation de la règle 18 (EXPR)]
+    T_SUB     réduction par utilisation de la règle 17 (@1)
+    T_SUB     [réduction par utilisation de la règle 18 (EXPR)]
+    T_MUL     réduction par utilisation de la règle 17 (@1)
+    T_MUL     [réduction par utilisation de la règle 18 (EXPR)]
+    T_DIV     réduction par utilisation de la règle 17 (@1)
+    T_DIV     [réduction par utilisation de la règle 18 (EXPR)]
+    T_PCLOSE  réduction par utilisation de la règle 18 (EXPR)
+    T_ACLOSE  réduction par utilisation de la règle 18 (EXPR)
+    T_SEP     réduction par utilisation de la règle 18 (EXPR)
+    $défaut  réduction par utilisation de la règle 17 (@1)
 
-    $défaut  réduction par utilisation de la règle 23 (declare_assignement)
-
-    OP  aller à l'état 41
-
-
-État 43
-
-   21 T_NAMELIST: T_NAME .
-   22           | T_NAME . T_COMMA T_NAMELIST
-
-    T_COMMA  décalage et aller à l'état 30
-
-    $défaut  réduction par utilisation de la règle 21 (T_NAMELIST)
-
-
-État 44
-
-   22 T_NAMELIST: T_NAME T_COMMA T_NAMELIST .
-
-    $défaut  réduction par utilisation de la règle 22 (T_NAMELIST)
-
-
-État 45
-
-   15 EXPR: T_POPEN EXPR T_PCLOSE .
-
-    $défaut  réduction par utilisation de la règle 15 (EXPR)
-
-
-État 46
-
-   17 EXPR: EXPR . OP EXPR
-   17     | EXPR OP EXPR .
-
-    T_ADD  décalage et aller à l'état 36
-    T_SUB  décalage et aller à l'état 37
-    T_MUL  décalage et aller à l'état 38
-    T_DIV  décalage et aller à l'état 39
-
-    T_ADD     [réduction par utilisation de la règle 17 (EXPR)]
-    T_SUB     [réduction par utilisation de la règle 17 (EXPR)]
-    T_MUL     [réduction par utilisation de la règle 17 (EXPR)]
-    T_DIV     [réduction par utilisation de la règle 17 (EXPR)]
-    $défaut  réduction par utilisation de la règle 17 (EXPR)
-
-    OP  aller à l'état 41
+    @1  aller à l'état 37

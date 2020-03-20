@@ -1,1 +1,1 @@
-main(){int a;int b= 4;int a = b+4*2;}
+main(){int a; a=2+2;a=a+a*(b)}
