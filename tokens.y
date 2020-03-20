@@ -116,7 +116,7 @@ T_NAMELIST : T_NAME
 
 declare_assignement : T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");};
 declaration : T_VAR T_NAMELIST{printf("DECLARATION");min++;nli_append(namel,"NONE");};
-assignement : T_NAME T_EQ T_NAME{printf("ASSIGN_NAME");ASM_write(5),ASM_write($1),ASM_write($3);ASM_endline();}
+assignement : T_NAME T_EQ T_EXPR {printf("ASSIGN_NAME");ASM_write(5),ASM_write($1),ASM_write($3);ASM_endline();}
             
 
 
