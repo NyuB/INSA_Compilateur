@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #define MAX 63
+#define NOT_FOUND -1;
 typedef struct name_cell {
 	char * name;
 	struct name_cell * suiv;
