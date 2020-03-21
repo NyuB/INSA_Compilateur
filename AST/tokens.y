@@ -38,7 +38,7 @@ BLOC : T_AOPEN BODY T_ACLOSE {printf("{BODY}");$$=ast_node_seq($2);}
 
 BODY :
     |CMD {ast_node_list * l = ast_node_list_empty();ast_node_list_append(l,$1);$$=l;}
-    |CMD T_SEP BODY {ast_node_list * l = $3; ast_node_list_append(l,$1);$$=l;}
+    |CMD T_SEP BODY {ast_node_list * l = $3; ast_node_list_prepend(l,$1);$$=l;}
     ;
 
 CMD : declare_assignement
@@ -47,16 +47,16 @@ CMD : declare_assignement
     |PRINT
     ;
 
-OP: T_ADD {$$=ASM_ADD;}
-    |T_SUB {$$=ASM_SUB;}
-    |T_MUL {$$=ASM_MUL;}
-    |T_DIV {$$=ASM_DIV;}
+OP:  T_ADD {$$ = ASM_ADD;}
+    |T_SUB {$$ = ASM_SUB;}
+    |T_MUL {$$ = ASM_MUL;}
+    |T_DIV {$$ = ASM_DIV;}
     ;
 
-EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1);}//Noeud feuille variable
-    |T_POPEN EXPR T_PCLOSE {$$=$2;} //Propagation du noeud
-    |T_INT {printf("INT-EXPR\n");$$=ast_var($1);}//Noeud feuille constante
-    |EXPR OP EXPR {printf("EXPR\n"); $$ = ast_math($2,$1,$3);}//Noeud opération
+EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variable
+    |T_POPEN EXPR T_PCLOSE {$$ = $2;} //Propagation du noeud
+    |T_INT {printf("INT-EXPR\n"); $$ = ast_var($1);}//Noeud feuille constante
+    |EXPR OP EXPR {printf("EXPR\n"); $$ = ast_math($2, $1, $3);}//Noeud opération
     |T_SUB EXPR {printf("MIN-EXPR\n");}
     |T_ADD EXPR {printf("PLUS-EXPR\n");$$ = $2;}
     ;
@@ -64,8 +64,8 @@ EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1);}//Noeud feuille variable
 PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE
       ;
 
-T_NAMELIST : T_NAME {ast_node_list * l = ast_node_list_empty();ast_node_list_append(l,ast_declare($1));$$=l;}
-           |T_NAME T_COMMA T_NAMELIST {ast_node_list * l = $3; ast_node_list_append(l,ast_declare($1));$$=l;}
+T_NAMELIST : T_NAME {ast_node_list * l = ast_node_list_empty(); ast_node_list_append(l, ast_declare($1));$$ = l; }
+           |T_NAME T_COMMA T_NAMELIST {ast_node_list * l = $3; ast_node_list_prepend(l, ast_declare($1));$$ = l; }
            ;
 
 declare_assignement : T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");$$ = ast_affect(ast_declare($2),$3);};
@@ -73,8 +73,8 @@ declaration : T_VAR T_NAMELIST
 			{
 			printf("DECLARATION"); $$ = ast_node_seq($2);
 			}
-	;st * ast_new(ast_node * root);
-assignement : T_NAME T_EQ EXPR {printf("ASSIGN_NAME");ast_affect(ast_var($1),$3); }
+	;
+assignement : T_NAME T_EQ EXPR {printf("ASSIGN_NAME");$$ = ast_affect(ast_var($1),$3); }
 
 
 %%
