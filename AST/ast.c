@@ -144,7 +144,6 @@ void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 }
 
 void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
-	int aux;
 	switch(node->code){
 		case AST_CODE_ADD:
 			ast_math_build("ADD",node,var_list,left_addr_min,right_addr_max,file);
@@ -171,7 +170,6 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 				ast_node_build(cursor->node,var_list,left_addr_min,right_addr_max,file);
 			}
 			break;
-
 		case AST_CODE_VAR:
 			break;
 		default:
