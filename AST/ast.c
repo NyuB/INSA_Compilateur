@@ -54,6 +54,7 @@ ast_node * ast_math(int op, ast_node * left,ast_node * right){
 	ast_node_list * list = ast_node_list_empty();
 	ast_node_list_append(list,left);
 	ast_node_list_append(list,right);
+	printf("Building math op : %d\n",op);
 	return ast_new_node(op,NULL,2,list);
 }
 
@@ -65,7 +66,7 @@ ast_node * ast_affect(ast_node * left,ast_node * right){
 	ast_node_list * list = ast_node_list_empty();
 	ast_node_list_append(list,left);
 	ast_node_list_append(list,right);
-
+	printf("Building affect\n");
 	return ast_new_node(AST_CODE_AFF,NULL,2,list);
 }
 int ast_node_list_length(ast_node_list * list){
@@ -147,18 +148,23 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 	switch(node->code){
 		case AST_CODE_ADD:
 			ast_math_build("ADD",node,var_list,left_addr_min,right_addr_max,file);
+			printf("MATHOP ADD\n");	
 			break;
 		case AST_CODE_MUL:
 			ast_math_build("MUL",node,var_list,left_addr_min,right_addr_max,file);
+			printf("MATHOP MUL\n");	
 			break;
 		case AST_CODE_SUB:
 			ast_math_build("SUB",node,var_list,left_addr_min,right_addr_max,file);
+			printf("MATHOP SUB\n");
 			break;
 		case AST_CODE_DIV:
 			ast_math_build("DIV",node,var_list,left_addr_min,right_addr_max,file);
+			printf("MATHOP DIV\n");	
 			break;
 		case AST_CODE_AFF:
 			ast_aff_build(node,var_list,left_addr_min,right_addr_max,file);
+			printf("AFFECT\n");	
 			break;
 		case AST_CODE_DCL:
 			nli_append(var_list,(char*)(node->content));
@@ -169,6 +175,7 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 			for(ast_node_cell * cursor = node->childs->start;cursor!=NULL;cursor=cursor->suiv){
 				ast_node_build(cursor->node,var_list,left_addr_min,right_addr_max,file);
 			}
+			printf("SEQOVER\n");
 			break;
 		case AST_CODE_VAR:
 			break;

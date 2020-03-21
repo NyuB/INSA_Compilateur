@@ -6,7 +6,7 @@ YACCFLAGS = -d -v --verbose --debug
 all : comp
 
 comp : lex.yy.c y.tab.c ast_all
-	${CC} ${CFLAGS} name_list.c y.tab.c lex.yy.c -o comp
+	${CC} ${CFLAGS} name_list.c ast.c y.tab.c lex.yy.c -o comp
 
 lex.yy.c : lexer.l ast_all
 	${LEX} lexer.l

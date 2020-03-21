@@ -1,4 +1,6 @@
 %{
+    #include "ast.h"
+    #include "name_list.h"
     #include "y.tab.h"
 %}
 LETTER [a-zA-Z]
