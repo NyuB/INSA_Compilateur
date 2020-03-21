@@ -12,6 +12,7 @@ name_list * nli_empty(void);
 int nli_contains(name_list * list, char * name);
 
 void nli_append(name_list * list, char * name);
+void nli_prepend(name_list * list, char * name);
 
 void nli_display(name_list * list);
 

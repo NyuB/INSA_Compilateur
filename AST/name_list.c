@@ -44,6 +44,12 @@ void nli_append(name_list * list, char * name){
 	}
 }
 
+void nli_prepend(name_list * list, char * name){
+	name_cell * new = new_name_cell(name);
+	new->suiv = list->start;
+	list->start = new;
+}
+
 void nli_display(name_list * list){
 	name_cell * aux = list->start;
 	while(aux!=NULL){
