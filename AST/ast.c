@@ -33,6 +33,12 @@ void ast_node_list_append(ast_node_list * list,ast_node * node){
 	}
 	list->end = new;
 }
+void ast_node_list_prepend(ast_node_list * list, ast_node * node){
+	ast_node_cell * new = (ast_node_cell *)malloc(1*sizeof(ast_node_cell));
+	new->node = node;
+	new->suiv=list->start;
+	list->start=new;	
+}
 
 ast_node * ast_var(char * name){
 	int l = strlen(name)+1;

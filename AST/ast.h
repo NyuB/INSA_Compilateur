@@ -47,7 +47,8 @@ ast_node * ast_node_seq(ast_node_list * list);// noeud père de la liste de noeu
 
 //Fonctions de manipulation des listes de noeuds
 ast_node_list * ast_node_list_empty(void);
-void ast_node_list_append(ast_node_list * list,ast_node * node);
+void ast_node_list_append(ast_node_list * list, ast_node * node);
+void ast_node_list_prepend(ast_node_list * list, ast_node * node);
 
 //Fonctions sur l'AST global
 ast * ast_new(ast_node * root);
