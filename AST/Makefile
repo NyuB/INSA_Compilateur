@@ -1,8 +1,15 @@
+CONFIG ?= lin
 CC = gcc
 CFLAGS = -Wall
-YACC = yacc 
-YACCFLAGS = -d -v --verbose --debug
-
+ifeq ($(CONFIG),win)
+	LEX = flex
+	YACC = bison 
+	YACCFLAGS = -dy -v --verbose --debug
+else
+	LEX = lex
+	YACC = yacc 
+	YACCFLAGS = -d -v --verbose --debug
+endif
 all : comp
 
 comp : lex.yy.c y.tab.c ast_all
