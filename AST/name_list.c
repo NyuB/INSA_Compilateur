@@ -28,8 +28,8 @@ name_cell * new_name_cell(char * name){
 
 name_list * nli_empty(void){
 	name_list * res = (name_list *)malloc(1*sizeof(name_list));
-	res->start=NULL;
-	res->end=NULL;
+	res->start = NULL;
+	res->end = NULL;
 	return res;
 }
 
@@ -52,9 +52,9 @@ void nli_prepend(name_list * list, char * name){
 
 void nli_display(name_list * list){
 	name_cell * aux = list->start;
-	while(aux!=NULL){
-		printf("=> %s ",aux->name);
-		aux=aux->suiv;
+	while(aux != NULL){
+		printf("=> %s ", aux->name);
+		aux = aux->suiv;
 	}
 	printf("\n");
 }
@@ -62,10 +62,10 @@ void nli_display(name_list * list){
 int nli_contains(name_list * list, char * name){
 	name_cell * cursor = list->start;
 	int index = 0;
-	while(cursor!=NULL){
-		if(strcmp(cursor->name,name) == 0)return index;
-		index++;
-		cursor=cursor->suiv;
+	while(cursor != NULL){
+		if(strcmp(cursor->name,name) == 0) return index;
+		index ++;
+		cursor = cursor->suiv;
 	}
 	return NOT_FOUND;
 }
