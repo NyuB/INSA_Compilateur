@@ -77,7 +77,7 @@ ast_node * ast_math(int op, ast_node * left,ast_node * right){
 	return ast_new_node(op,NULL,2,list);
 }
 
-//Retourne un noeud de code AST_CODE_AFF avec pour fils les deu noeuds en arguments. Aucune vérification n'est faite sur la nature des noeuds
+//Retourne un noeud de code AST_CODE_AFF avec pour fils les deux noeuds en arguments. Aucune vérification n'est faite sur la nature des noeuds
 ast_node * ast_affect(ast_node * left,ast_node * right){
 	ast_node_list * list = ast_node_list_empty();
 	ast_node_list_append(list,left);
@@ -228,7 +228,7 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 	}
 }
 
-//Ouvre un fichier assembleur et y écrit les opérations associées à l'interpréation sémantique de l'AST
+//Ouvre un fichier assembleur et y écrit les opérations associées à l'interprétation sémantique de l'AST
 void ast_build(ast * tree,const char * filename,int mem_size){
 	FILE * file = fopen(filename,"w");
 	name_list * vars = nli_empty();

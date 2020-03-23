@@ -20,7 +20,7 @@
 
 
 typedef struct ast_node{
-	int code;//type du noeud pour l'interprétation, à affecter parmi AST_CODE_N
+	int code;//type du noeud pour l'interprétation, à affecter parmi AST_CODE_XXX
 	void * content;//certains noeuds auront besoin de stocker une valeur
 	int nb_childs;
 	struct ast_node_list * childs;
