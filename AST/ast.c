@@ -120,6 +120,22 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 	int leftAddr;
 	int rightAddr;
 	int stack_shift = 0;
+	//Même traitement que pour le noeud de gauche
+	if(right->node->code == AST_CODE_VAR){
+		rightAddr = nli_contains(var_list,(char *)(right->node->content));
+		if(rightAddr == NOT_FOUND){
+			printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(right->node->content));
+		}
+	} else if (right->node->code == AST_CODE_INT){
+		ast_write(file, "AFC", (*right_addr_max),*((int*)(right->node->content)),-1);
+		stack_shift++;
+	} 
+	else{
+		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);
+		rightAddr = *((int*)(right->node->content));
+		stack_shift++;
+	}
+
 	if(left->node->code == AST_CODE_VAR){//Si le noeud de gauche est une référence directe à une variable nommée
 		leftAddr = nli_contains(var_list,(char *)(left->node->content));//On récupère l'index de la variable dans la liste des noms déclarés
 		if(leftAddr == NOT_FOUND){//Vérifier que ce nom est bien déclaré dans la liste
@@ -127,28 +143,13 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 			//TODO lever une erreur et quitter?
 		}
 	} else if (left->node->code == AST_CODE_INT){
-		ast_write(file, "AFC", (*right_addr_max)-1,*((int*)(left->node->content)),-1);
+		ast_write(file, "AFC", (*right_addr_max)-stack_shift,*((int*)(left->node->content)),-1);
 		stack_shift++;
 	}
-	//TODO traiter le cas des entiers
 	else{//Le noeud est lui-même une expression
 		ast_node_build(left->node,var_list,left_addr_min,right_addr_max,file);//appel récursif, on résoud ce noeud avant de poursuivre
 		leftAddr = *((int*)(left->node->content));//"l'adresse" correspondante à ce noeud a été stockée dans son contenu après résolution
 		stack_shift++;//on va "consommer" une variable de la stack, on décale(i.e "pop")
-	}
-
-	//Même traitement que pour le noeud de gauche
-	if(right->node->code == AST_CODE_VAR){
-		rightAddr = nli_contains(var_list,(char *)(right->node->content));
-		if(rightAddr == NOT_FOUND){
-			printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(right->node->content));
-		}
-	}
-
-	else{
-		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);
-		rightAddr = *((int*)(right->node->content));
-		stack_shift++;
 	}
 
 	int * addr = (int *)malloc(1*sizeof(int));//addresse de la stack où "placer" le résultat
@@ -175,6 +176,9 @@ void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 			//TODO lever une erreur et quitter?
 		}
 
+	} else if (right->node->code == AST_CODE_INT){
+		ast_write(file, "AFC", (*right_addr_max)-stack_shift,*((int*)(right->node->content)),-1);
+		stack_shift++;
 	}
 	else{
 		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);//appel récursif, on résoud ce noeud avant de poursuivre
