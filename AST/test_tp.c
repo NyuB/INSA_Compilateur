@@ -1,1 +1,1 @@
-main(){int a;int b;a = b*(a + 2 + 7 * (a + a - 3 + a * (b * 4)))}
+main(){int a;int b;a = (3 + a * (b * 4))}

@@ -68,7 +68,17 @@ T_NAMELIST : T_NAME {ast_node_list * l = ast_node_list_empty(); ast_node_list_ap
            |T_NAME T_COMMA T_NAMELIST {ast_node_list * l = $3; ast_node_list_prepend(l, ast_declare($1));$$ = l; }
            ;
 
-declare_assignement : T_VAR T_NAME T_EQ EXPR{printf("DCLR-ASSIGN\n");$$ = ast_affect(ast_declare($2),$3);};
+declare_assignement : T_VAR T_NAME T_EQ EXPR{
+		printf("DCLR-ASSIGN\n");
+		ast_node * dcl = ast_declare($2);
+		ast_node * var = ast_var($2);
+		ast_node * aff = ast_affect(var,$4);
+		ast_node_list * li = ast_node_list_empty();
+		ast_node_list_append(li,dcl);
+		ast_node_list_append(li,aff);
+		$$ = ast_node_seq(li);
+		}
+		;
 declaration : T_VAR T_NAMELIST
 			{
 			printf("DECLARATION"); $$ = ast_node_seq($2);

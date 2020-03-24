@@ -157,6 +157,7 @@ void ast_int_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 	ast_write(file, "AFC", (*right_addr_max),*((int*)(node->content)),-1);
 	int * content = (int *)malloc(1*sizeof(int));
 	*content = *right_addr_max;
+	node->content = content;
 	*(right_addr_max) -= 1;
 }
 
