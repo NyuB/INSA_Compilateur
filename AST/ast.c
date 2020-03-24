@@ -147,18 +147,19 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 	}
 
 	int * addr = (int *)malloc(1*sizeof(int));//addresse de la stack où "placer" le résultat
-	*addr = *right_addr_max+stack_shift;//Le résultat est "placé" dans la pile après "consommation" des deux opérandes
+	*addr = *right_addr_max+stack_shift-1;//Le résultat est "placé" dans la pile après "consommation" des deux opérandes
 	ast_write(file,op,*addr,leftAddr,rightAddr);//écriture de l'opération dans le fichier assembleur
 	node->content = addr;//on stocke pour information l'addresse du résultat dans le contenu noeud
-	*right_addr_max = *addr-1;
+	*right_addr_max = *addr;
 }
 
 void ast_int_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
+	*(right_addr_max) -= 1;
 	ast_write(file, "AFC", (*right_addr_max),*((int*)(node->content)),-1);
 	int * content = (int *)malloc(1*sizeof(int));
 	*content = *right_addr_max;
 	node->content = content;
-	*(right_addr_max) -= 1;
+	
 }
 
 
@@ -249,7 +250,7 @@ void ast_build(ast * tree,const char * filename,int mem_size){
 	FILE * file = fopen(filename,"w");
 	name_list * vars = nli_empty();
 	int minMem = 0;
-	int maxMem = mem_size-1;
+	int maxMem = mem_size;
 	ast_node_build(tree->root,vars,&minMem,&maxMem,file);//Lancement de la récursion
 	fclose(file);
 }
