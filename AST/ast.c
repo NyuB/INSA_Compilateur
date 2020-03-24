@@ -128,6 +128,7 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 		}
 	} else if (left->node->code == AST_CODE_INT){
 		ast_write(file, "AFC", (*right_addr_max)-1,*((int*)(left->node->content)),-1);
+		stack_shift++;
 	}
 	//TODO traiter le cas des entiers
 	else{//Le noeud est lui-même une expression
