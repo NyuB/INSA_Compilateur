@@ -126,6 +126,8 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 			printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(left->node->content));
 			//TODO lever une erreur et quitter?
 		}
+	} else if (left->node->code == AST_CODE_INT){
+		ast_write(file, "AFC", (*right_addr_max)-1,*((int*)(left->node->content)),-1);
 	}
 	//TODO traiter le cas des entiers
 	else{//Le noeud est lui-même une expression
