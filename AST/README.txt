@@ -1,4 +1,4 @@
-Version alternative en construisant l'Abract Syntax Tree via des structures C.
+Construction de l'Abstract Syntax Tree via des structures C.
 Lors de l'analyse syntaxique yacc, on construit les noeuds de l'AST et les relie entre eux.
 Ensuite, on appelle une fonction build sur l'ast construit(après yyparse() donc) qui génère le code assembleur dans un fichier assembly.asm
 
@@ -9,19 +9,24 @@ Sous windows : "mingw32-make CONFIG=win" (ou toute autre version de make for win
 
 ASSEMBLEUR :
 
-Pour l'instant, l'assembleur est généré en "clair" avec les noms des opérations.
+Pour l'instant, l'assembleur est généré en "clair" avec les noms des opérations. Les opérandes vides(par exemple pour la commande COP) sont représentées par -1.
 
-TODO :
+TODO-LIST :
 /!\ Certains de ces points nécessiteront de modifier légèrement le fonctionement des name_list(plus d'infos que juste le nom/index) /!\
 0 :
-	-nombres "en dur" (pas les variables)
+	-nombres "en dur" (pas les variables) => FAIT le 24/03
 	-const (vérifier leur instanciation/non-modif : un namespace réservé/des infos en plus dans les name_list?)
 1 :
-	-if/else
-	-gérer les scopes (i.e "niveau","altitude" d'un nom de variable) exemple : ne pas pouvoir référence une variable déclarée dans un if dans le else qui suit
+	-if/else : créer un type de noeud condition/comparaison, et un noeud de type if à 3 opérandes (condition,sequence,sequence)
+	/!\ va demander de gérer les jumps et les numéros de ligne assembleurs /!\
+	-gérer les scopes (i.e "niveau","altitude" d'un nom de variable) exemple : ne pas pouvoir référencer une variable déclarée dans un if dans le else qui suit => structures C codées, reste à intégrer à l'ast(après implémentation du if-else probablement)
 2:
 	-pointeurs
-	-fonctions
+	-fonctions : élargir les possibilités de expr, créer un noeud fonction a n arguments
 3:
+	-gérer finement les erreurs
+4:
+	-ajouter des types
+5:
 	-optimisation soyons fou
 
