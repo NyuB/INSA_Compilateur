@@ -2,10 +2,8 @@
 *.sublime-workspace
 *.o
 *.exe
-./y.output
-./y.tab.c
-./y.tab.h
-../lex.yy.c
-./lex.yy.c
-./assembly.asm
-./mymake.bat
+*.bat
+y.output
+y.tab.c
+y.tab.h
+lex.yy.c
