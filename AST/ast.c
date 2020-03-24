@@ -126,13 +126,7 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 		if(rightAddr == NOT_FOUND){
 			printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(right->node->content));
 		}
-	} else if (right->node->code == AST_CODE_INT){
-		ast_write(file, "AFC", (*right_addr_max),*((int*)(right->node->content)),-1);
-		rightAddr = *(right_addr_max);
-		*(right_addr_max)-=1;
-		stack_shift++;
-	}
-
+	} 
 	else{
 		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);
 		rightAddr = *((int*)(right->node->content));
@@ -145,11 +139,6 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 			printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(left->node->content));
 			//TODO lever une erreur et quitter?
 		}
-	} else if (left->node->code == AST_CODE_INT){
-		ast_write(file, "AFC", (*right_addr_max)-stack_shift,*((int*)(left->node->content)),-1);
-		leftAddr = *(right_addr_max);
-		*(right_addr_max) -= 1;
-		stack_shift++;
 	}
 	else{//Le noeud est lui-même une expression
 		ast_node_build(left->node,var_list,left_addr_min,right_addr_max,file);//appel récursif, on résoud ce noeud avant de poursuivre
@@ -162,8 +151,16 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 	ast_write(file,op,*addr,leftAddr,rightAddr);//écriture de l'opération dans le fichier assembleur
 	node->content = addr;//on stocke pour information l'addresse du résultat dans le contenu noeud
 	*right_addr_max = *addr-1;
-
 }
+
+void ast_int_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
+	ast_write(file, "AFC", (*right_addr_max),*((int*)(node->content)),-1);
+	int * content = (int *)malloc(1*sizeof(int));
+	*content = *right_addr_max;
+	*(right_addr_max) -= 1;
+}
+
+
 
 void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
 	ast_node_cell * left = node->childs->start;
@@ -181,10 +178,7 @@ void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 			//TODO lever une erreur et quitter?
 		}
 
-	} else if (right->node->code == AST_CODE_INT){
-		ast_write(file, "AFC", (*right_addr_max)-stack_shift,*((int*)(right->node->content)),-1);
-		stack_shift++;
-	}
+	} 
 	else{
 		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);//appel récursif, on résoud ce noeud avant de poursuivre
 		rightAddr = *((int*)(right->node->content));//"l'adresse" correspondante à ce noeud a été stockée dans son contenu après résolution
@@ -234,6 +228,9 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 				ast_node_build(cursor->node,var_list,left_addr_min,right_addr_max,file);
 			}
 			printf("SEQOVER\n");
+			break;
+		case AST_CODE_INT:
+			ast_int_build(node,var_list,left_addr_min,right_addr_max,file);
 			break;
 		case AST_CODE_VAR:
 			break;
