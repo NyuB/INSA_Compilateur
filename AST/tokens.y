@@ -23,9 +23,9 @@
 %left T_MUL T_DIV
 %left T_ADD T_SUB
 %union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s}
-%type <s> T_NAME T_INT
+%type <s> T_NAME 
 %type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR CMD PRINT BLOC assignement declaration declare_assignement  
-%type <i> OP T_ADD T_SUB T_MUL T_DIV
+%type <i> OP T_ADD T_SUB T_MUL T_DIV T_INT
 %type <noli> BODY T_NAMELIST
 %%
 
@@ -55,7 +55,7 @@ OP:  T_ADD {$$ = ASM_ADD;}
 
 EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variable
     |T_POPEN EXPR T_PCLOSE {$$ = $2;} //Propagation du noeud
-    |T_INT {printf("INT-EXPR\n"); $$ = ast_var($1);}//Noeud feuille constante
+    |T_INT {printf("INT-EXPR\n"); $$ = ast_int($1);}//Noeud feuille constante
     |EXPR OP EXPR {printf("EXPR\n"); $$ = ast_math($2, $1, $3);}//Noeud opération
     |T_SUB EXPR {printf("MIN-EXPR\n");}
     |T_ADD EXPR {printf("PLUS-EXPR\n");$$ = $2;}

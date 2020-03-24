@@ -49,6 +49,7 @@ ast_node * ast_declare(char * name);// Déclaration de variable, exemple : 'int 
 ast_node * ast_math(int op, ast_node * left,ast_node * right);//expression à deux opérandes
 ast_node * ast_affect(ast_node * a,ast_node * b);// name = expr
 ast_node * ast_var(char * name);//réference à une variable nommée, exemple a
+ast_node * ast_int(int integer);
 ast_node * ast_node_seq(ast_node_list * list);//sequence d'instructions, exemple : int a;int b;a=b+2;
 
 //Fonctions de manipulation des listes de noeuds

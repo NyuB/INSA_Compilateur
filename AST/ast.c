@@ -90,7 +90,7 @@ ast_node * ast_node_seq(ast_node_list * list){
 	return ast_new_node(AST_CODE_SEQ,NULL,ast_node_list_length(list),list);
 }
 
-ast_node * ast_node_int(int integer){
+ast_node * ast_int(int integer){
 	int * content = (int *)malloc(sizeof(int));
 	*(content) = integer;
 	return ast_new_node(AST_CODE_INT, content,0,NULL);
