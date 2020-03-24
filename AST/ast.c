@@ -128,8 +128,11 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 		}
 	} else if (right->node->code == AST_CODE_INT){
 		ast_write(file, "AFC", (*right_addr_max),*((int*)(right->node->content)),-1);
+		rightAddr = *(right_addr_max);
+		*(right_addr_max)-=1;
 		stack_shift++;
-	} 
+	}
+
 	else{
 		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);
 		rightAddr = *((int*)(right->node->content));
@@ -144,6 +147,8 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 		}
 	} else if (left->node->code == AST_CODE_INT){
 		ast_write(file, "AFC", (*right_addr_max)-stack_shift,*((int*)(left->node->content)),-1);
+		leftAddr = *(right_addr_max);
+		*(right_addr_max) -= 1;
 		stack_shift++;
 	}
 	else{//Le noeud est lui-même une expression
