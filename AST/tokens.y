@@ -24,9 +24,6 @@
 %token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA
 
 
-
-
- 
 %union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s}
 %type <s> T_NAME 
 %type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR CMD PRINT BLOC assignement declaration declare_assignement  
@@ -80,6 +77,7 @@ declare_assignement : T_VAR T_NAME T_EQ EXPR{
 		ast_node_list_append(li,aff);
 		$$ = ast_node_seq(li);
 		}
+		| T_CONST T_NAME T_EQ EXPR {$$ = ast_declare_const($2,$4);}
 		;
 declaration : T_VAR T_NAMELIST
 			{
