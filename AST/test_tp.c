@@ -1,1 +1,1 @@
-main(){int a;int b;a = (3 + a * (b * 4))}
+main(){int a,b,c;a=3*4-3+6;b=-a;c=b}

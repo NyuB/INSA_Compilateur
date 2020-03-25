@@ -10,10 +10,10 @@ int main(int argc, char ** argv)
 
 	printf("Test name_list\n");
 	name_list * list = nli_empty();
-	nli_append(list,"a");
-	nli_append(list,"abcd");
+	nli_append(list,"a", 4 , 0, VS_MUTABLE);
+	nli_append(list,"abcd", 4 , 0, VS_MUTABLE);
 	nli_display(list);
-	if(nli_contains(list,"abcd")!=1){
+	if(nli_contains(list,"abcd")==NOT_FOUND){
 		printf("List should contain 'abcd' at index 1\n");
 	}
 	if(nli_contains(list,"b")!=NOT_FOUND){
@@ -22,14 +22,14 @@ int main(int argc, char ** argv)
 
 	printf("Test scope\n");
 	scope * root_00 = scp_empty_root();
-	scp_add(root_00,"root");
+	scp_add(root_00,"root", 4 , 0, VS_MUTABLE);
 	scope * child_10 = scp_empty_contained(root_00);
-	scp_add(child_10,"a");
-	scp_add(child_10,"b");
+	scp_add(child_10,"a", 4 , 0, VS_MUTABLE);
+	scp_add(child_10,"b", 4 , 0, VS_MUTABLE);
 	scope * child_11 = scp_empty_contained(root_00);
-	scp_add(child_11,"b");
+	scp_add(child_11,"b", 4 , 0, VS_MUTABLE);
 	scope * child_20 = scp_empty_contained(child_10);
-	scp_add(child_20,"c");
+	scp_add(child_20,"c", 4 , 0, VS_MUTABLE);
 	printf("CH 20\n");
 	scp_display(child_20);
 	printf("CH 10\n");

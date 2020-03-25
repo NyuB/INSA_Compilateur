@@ -1,7 +1,18 @@
 #include "name_list.h"
 
+name_info * new_name_info(char * name, int size, int addr,var_status status){
+	name_info * res = (name_info *)malloc(1*sizeof(name_info));
+	int len = strlen(name)+1;
+	res->name = (char *)malloc(len*sizeof(char));
+	myncpy(res->name,name,len);
+	res->size = size;
+	res->addr = addr;
+	res->status = status;
+	return res;
+}
+
 typedef struct name_cell {
-	char * name;
+	name_info * info;
 	struct name_cell * suiv;
 }name_cell;
 
@@ -16,12 +27,9 @@ void myncpy(char * dest,char * src,int n){
 	}
 }
 
-name_cell * new_name_cell(char * name){
+name_cell * new_name_cell(name_info * info){
 	name_cell * res = (name_cell *)malloc(1*sizeof(name_cell));
-	int len = strlen(name)+1;
-	char * str = (char *)malloc(len*sizeof(char));
-	myncpy(str,name,len);
-	res->name = str;
+	res->info = info;
 	res->suiv = NULL;
 	return res;
 }
@@ -33,39 +41,40 @@ name_list * nli_empty(void){
 	return res;
 }
 
-void nli_append(name_list * list, char * name){
+void nli_append(name_list * list, char * name, int size, int addr, var_status status){
+	name_cell * new = new_name_cell(new_name_info(name,size,addr,status));
 	if(list->start == NULL){
-		list->start = new_name_cell(name);
+		list->start = new;
 		list->end = list->start;
 	}
 	else{
-		list->end->suiv = new_name_cell(name);
+		list->end->suiv = new;
 		list->end = list->end->suiv;
 	}
 }
 
-void nli_prepend(name_list * list, char * name){
-	name_cell * new = new_name_cell(name);
+void nli_prepend(name_list * list, char * name, int size, int addr, var_status status){
+	name_cell * new = new_name_cell(new_name_info(name,size,addr,status));
 	new->suiv = list->start;
 	list->start = new;
+}
+
+name_info * nli_contains(name_list * list, char * name){
+	name_cell * cursor = list->start;
+	while(cursor != NULL){
+		if(strcmp(cursor->info->name,name) == 0) return cursor->info;
+		cursor = cursor->suiv;
+	}
+	return NOT_FOUND;
 }
 
 void nli_display(name_list * list){
 	name_cell * aux = list->start;
 	while(aux != NULL){
-		printf("=> %s ", aux->name);
+		printf("=> %s %d %d %s ", aux->info->name, aux->info->size, aux->info->addr, (aux->info->status == VS_MUTABLE)?"var":"const");
 		aux = aux->suiv;
 	}
 	printf("\n");
 }
 
-int nli_contains(name_list * list, char * name){
-	name_cell * cursor = list->start;
-	int index = 0;
-	while(cursor != NULL){
-		if(strcmp(cursor->name,name) == 0) return index;
-		index ++;
-		cursor = cursor->suiv;
-	}
-	return NOT_FOUND;
-}
+

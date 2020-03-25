@@ -19,6 +19,8 @@
 #define AST_SEMANTIC_ERROR -2
 #define AST_STACK_REQ_ERROR -3
 
+#define AST_TYPESIZE_INT 1
+
 
 typedef struct ast_node{
 	int code;//type du noeud pour l'interprétation, à affecter parmi AST_CODE_XXX
@@ -54,7 +56,7 @@ ast_node * ast_node_seq(ast_node_list * list);//sequence d'instructions, exemple
 
 //Fonctions de manipulation des listes de noeuds
 ast_node_list * ast_node_list_empty(void);//génère une liste vite
-void ast_node_list_append(ast_node_list * list, ast_node * node);//ajoute un neoud au début de la liste
+void ast_node_list_append(ast_node_list * list, ast_node * node);//ajoute un noeud au début de la liste
 void ast_node_list_prepend(ast_node_list * list, ast_node * node);//ajoute un noeud en fin de liste
 
 //Fonctions sur l'AST global

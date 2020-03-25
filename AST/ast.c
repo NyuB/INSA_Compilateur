@@ -120,24 +120,31 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 	int leftAddr;
 	int rightAddr;
 	int stack_shift = 0;
-	//Même traitement que pour le noeud de gauche
-	if(right->node->code == AST_CODE_VAR){
-		rightAddr = nli_contains(var_list,(char *)(right->node->content));
-		if(rightAddr == NOT_FOUND){
+	name_info * info;
+	if(right->node->code == AST_CODE_VAR){//Si le noeud de droite est une référence directe à une variable nommée
+		info = nli_contains(var_list,(char *)(right->node->content));//On récupère les données variable associées dans la liste des noms déclarés
+		if(info == NOT_FOUND){//Vérifier que ce nom est bien déclaré dans la liste
 			printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(right->node->content));
+			//TODO lever une erreur et quitter?
+		}
+		else{
+			rightAddr = info->addr;
 		}
 	} 
-	else{
-		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);
-		rightAddr = *((int*)(right->node->content));
-		stack_shift++;
+	else{//Le noeud est lui-même une expression
+		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);//appel récursif, on résoud ce noeud avant de poursuivre
+		rightAddr = *((int*)(right->node->content));//"l'adresse" correspondante à ce noeud a été stockée dans son contenu après résolution
+		stack_shift++;//on va "consommer" une variable de la stack, on décale(i.e "pop")
 	}
 
 	if(left->node->code == AST_CODE_VAR){//Si le noeud de gauche est une référence directe à une variable nommée
-		leftAddr = nli_contains(var_list,(char *)(left->node->content));//On récupère l'index de la variable dans la liste des noms déclarés
-		if(leftAddr == NOT_FOUND){//Vérifier que ce nom est bien déclaré dans la liste
+		info = nli_contains(var_list,(char *)(left->node->content));//On récupère l'index de la variable dans la liste des noms déclarés
+		if(info == NOT_FOUND){//Vérifier que ce nom est bien déclaré dans la liste
 			printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(left->node->content));
 			//TODO lever une erreur et quitter?
+		}
+		else{
+			leftAddr = info->addr;
 		}
 	}
 	else{//Le noeud est lui-même une expression
@@ -169,15 +176,23 @@ void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 	ast_node_cell * right = left->suiv;
 	int rightAddr;
 	int stack_shift = 0;
-	int leftAddr = nli_contains(var_list,(char*)(left->node->content));//On récupère l'index de la variable dans la liste des noms déclarés
-	if(leftAddr == NOT_FOUND){
+	int leftAddr;
+	name_info * info = nli_contains(var_list,(char*)(left->node->content));//On récupère l'index de la variable dans la liste des noms déclarés
+	if(info == NOT_FOUND){
 		printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(left->node->content));
 	}
+	else{
+		leftAddr = info->addr;
+	}
+
 	if(right->node->code==AST_CODE_VAR){
-		rightAddr = nli_contains(var_list,(char*)(right->node->content));
-		if(rightAddr == NOT_FOUND){//Vérifier que ce nom est bien déclaré dans la liste
+		info = nli_contains(var_list,(char*)(right->node->content));
+		if(info == NOT_FOUND){//Vérifier que ce nom est bien déclaré dans la liste
 			printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(right->node->content));
 			//TODO lever une erreur et quitter?
+		}
+		else{
+			rightAddr = info->addr;
 		}
 
 	} 
@@ -186,6 +201,7 @@ void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 		rightAddr = *((int*)(right->node->content));//"l'adresse" correspondante à ce noeud a été stockée dans son contenu après résolution
 		stack_shift++;//on va "consommer" une variable de la stack, on décale(i.e "pop")
 	}
+
 	(*right_addr_max)+=stack_shift;
 	ast_write(file,"COP",leftAddr,rightAddr,-1);
 }
@@ -217,12 +233,12 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 			printf("AFFECT\n");	
 			break;
 		case AST_CODE_DCL:
-			if(nli_contains(var_list,(char*)(node->content)) != NOT_FOUND){//On vérfie que ce nom n'est pas déjà déclaré
+			if(nli_contains(var_list,(char*)(node->content)) != NOT_FOUND){//On vérifie que ce nom n'est pas déjà déclaré
 				printf("Semantic error : [ %s ] is already declared\n",(char*)(node->content));
 				//TODO lever une erreur et quitter?
 			}
-			nli_append(var_list,(char*)(node->content));//On ajoute ce nom à la liste des noms déclarés
-			(*left_addr_min)++;//On déclae l'index "d'écriture" de l'espace des variables déclarées
+			nli_append(var_list,(char*)(node->content), AST_TYPESIZE_INT, *left_addr_min, VS_MUTABLE);//On ajoute ce nom à la liste des noms déclarés
+			(*left_addr_min)++;//On décale l'index "d'écriture" de l'espace des variables déclarées
 			printf("DECLARE %s %d\n",(char *)(node->content),*left_addr_min);
 			break;
 		case AST_CODE_SEQ:
@@ -239,6 +255,7 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 		default:
 			break;
 	}
+	
 	if(*left_addr_min > *right_addr_max){//On vérifie à nouveau qu'il n'y a pas eu collision entre espace variable et stack
 		printf("Specifications error : expression evaluation will require too much stack\n");
 		printf("Allow more stack or split/condense nested expressions\n");

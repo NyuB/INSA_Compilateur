@@ -59,7 +59,7 @@ EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variabl
     |EXPR T_SUB EXPR {printf("EXPR\n"); $$ = ast_math(ASM_SUB, $1, $3);}//Noeud opération
     |EXPR T_MUL EXPR {printf("EXPR\n"); $$ = ast_math(ASM_MUL, $1, $3);}//Noeud opération
     |EXPR T_DIV EXPR {printf("EXPR\n"); $$ = ast_math(ASM_DIV, $1, $3);}//Noeud opération
-    |T_SUB EXPR {printf("MIN-EXPR\n");}
+    |T_SUB EXPR {printf("MIN-EXPR\n");$$ = ast_math(ASM_SUB,ast_int(0),$2);}//Construction d'une négation par 0-expr
     |T_ADD EXPR {printf("PLUS-EXPR\n");$$ = $2;}
     ;
 
