@@ -1,1 +1,1 @@
-main(){int a,b,c,d,e,f,g,h;h = 2*3+6-4*7*9+9*7-8*7}
+main(){int a = 2;int b;b=2*a+4-5+6/a}

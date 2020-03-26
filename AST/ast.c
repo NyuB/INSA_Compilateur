@@ -123,18 +123,32 @@ ast * ast_new(ast_node * root){
 void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file);
 
 //Assume que le noeud contient une string (noeud de référence à un nom) , et vérifie qu'il est bien présent dans le namespace donné en argument ,et retourne son adresse
-int name_resolve(name_list * var_list, ast_node * node){
+name_info * name_resolve(name_list * var_list, ast_node * node){
 	name_info * info = nli_contains(var_list,(char *)node->content);//On récupère les données variable associées dans la liste des noms déclarés
 	if(info == NOT_FOUND){//Vérifier que ce nom est bien déclaré dans la liste
 		printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(node->content));
-		return AST_SEMANTIC_ERROR;
+		//TODO : raise an error ?
+		return NULL;
 	}
 	else{
 		if(info->status == VS_MUTABLE){
 			printf("Warning : variable [ %s ] may be used before initialization\n",(char *)(node->content));
 		}
-		return info->addr;
+		return info;
 	}
+}
+
+int addr_resolve(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max, int * stack_shift, FILE * file){
+	int addr;
+	if(node->code == AST_CODE_VAR){
+		addr = name_resolve(var_list, node)->addr;
+	}
+	else{
+		ast_node_build(node, var_list, left_addr_min, right_addr_max, file);
+		addr = *right_addr_max;
+		(*stack_shift)++;
+	}
+	return addr;
 }
 
 //Declaration et affectation d'une constante
@@ -142,21 +156,13 @@ void ast_const_build(ast_node * node, name_list * var_list,int * left_addr_min,i
 	name_info * info = nli_contains(var_list,(char *)(node->content));
 	int rightAddr;
 	int stack_shift=0;
-	if(info != NOT_FOUND){//Vérifier que ce nom n'estpas déjà déclaré
+	if(info != NOT_FOUND){//Vérifier que ce nom n'est pas déjà déclaré
 		printf("Semantic error : variable [ %s ] is already declared\n",(char *)(node->content));
 		//TODO lever une erreur et quitter?
 	}
 	else{
-
 		ast_node * right = node->childs->start->node;
-		if(right->code == AST_CODE_VAR){
-			rightAddr = name_resolve(var_list,right);
-		}
-		else{
-			ast_node_build(right, var_list, left_addr_min, right_addr_max, file);//appel récursif, on résoud ce noeud avant de poursuivre
-			rightAddr = *right_addr_max;//Le résultat a été placé au sommet de la pile
-			stack_shift++;//on va "consommer" une variable de la stack, on décale(i.e "pop")
-		}
+		rightAddr = addr_resolve(right, var_list, left_addr_min, right_addr_max, &stack_shift, file);
 		nli_append(var_list, (char *)(node->content), AST_TYPESIZE_INT, *left_addr_min, VS_CONSTANT);
 		ast_write(file,"COP", *left_addr_min, rightAddr, -1);
 		(*left_addr_min) ++;
@@ -172,24 +178,8 @@ void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * 
 	int leftAddr;
 	int rightAddr;
 	int stack_shift = 0;
-	if(right->node->code == AST_CODE_VAR){//Si le noeud de droite est une référence directe à une variable nommée
-		rightAddr = name_resolve(var_list, right->node);//on vérifie que le nom est bien déclaré et on obtient son addresse
-	} 
-	else{//Le noeud est lui-même une expression
-		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);//appel récursif, on résoud ce noeud avant de poursuivre
-		rightAddr = *right_addr_max;//Le résultat a été placé au sommet de la pile
-		stack_shift++;//on va "consommer" une variable de la stack, on décale(i.e "pop")
-	}
-
-	if(left->node->code == AST_CODE_VAR){//Si le noeud de gauche est une référence directe à une variable nommée
-		leftAddr = name_resolve(var_list, left->node);//on vérifie que le nom est bien déclaré et on obtient son addresse
-	}
-	else{//Le noeud est lui-même une expression
-		ast_node_build(left->node,var_list,left_addr_min,right_addr_max,file);//appel récursif, on résoud ce noeud avant de poursuivre
-		leftAddr = *right_addr_max;//Le résultat a été placé au sommet de la pile
-		stack_shift++;//on va "consommer" une variable de la stack, on décale(i.e "pop")
-	}
-
+	rightAddr = addr_resolve(right->node, var_list, left_addr_min, right_addr_max, &stack_shift, file);
+	leftAddr = addr_resolve(left->node, var_list, left_addr_min, right_addr_max, &stack_shift, file);
 	int addr = *right_addr_max+stack_shift-1;//Le résultat est "placé" dans la pile après "consommation" des deux opérandes
 	ast_write(file,op, addr, leftAddr, rightAddr);//écriture de l'opération dans le fichier assembleur
 	*right_addr_max = addr;
@@ -218,19 +208,11 @@ void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 	else{
 		leftAddr = info->addr;
 	}
-
-	if(right->node->code==AST_CODE_VAR){
-		rightAddr = name_resolve(var_list, right->node);
-	} 
-	else{
-		ast_node_build(right->node,var_list,left_addr_min,right_addr_max,file);//appel récursif, on résoud ce noeud avant de poursuivre
-		rightAddr = *right_addr_max;//Le résultat a été placé au sommet de la pile
-		stack_shift++;//on va "consommer" une variable de la stack, on décale(i.e "pop")
-	}
-
+	info -> status = VS_ASSIGNED;
+	rightAddr = addr_resolve(right->node, var_list, left_addr_min, right_addr_max, &stack_shift, file);
 	(*right_addr_max)+=stack_shift;
 	ast_write(file,"COP",leftAddr,rightAddr,-1);
-	info -> status = VS_ASSIGNED;
+	
 }
 
 /*Fonction récursive principale d'interprétation de l'AST
