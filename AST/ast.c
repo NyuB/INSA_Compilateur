@@ -98,6 +98,7 @@ void asm_instru_list_insert(asm_instru_list * list,char * s, int destAddr, int l
 	if(index == 0){
 		new->next = list->start;
 		list->start=new;
+
 	}
 	else{
 		asm_cell * cursor = list->start;
@@ -165,13 +166,18 @@ ast_node * ast_node_if(ast_node * condition, ast_node * true_body, ast_node * fa
 	return ast_new_node(AST_CODE_IF,NULL,3,three);
 }
 
+ast_node * ast_node_while(ast_node * condition, ast_node * body){
+	ast_node_list * three = ast_node_list_empty();
+	ast_node_list_prepend(three,body);
+	ast_node_list_prepend(three,condition);
+	return ast_new_node(AST_CODE_WHILE,NULL,2,three);
+}
+
 ast_node * ast_int(int integer){
 	int * content = (int *)malloc(sizeof(int));
 	*(content) = integer;
 	return ast_new_node(AST_CODE_INT, content,0,NULL);
 }
-
-
 
 //Fonctions de construction de l'AST
 ast * ast_new(ast_node * root){
@@ -195,7 +201,7 @@ typedef struct build_data{
 void ast_write(char * op,int destAddr,int leftAddr,int rightAddr,build_data * datas){
 	asm_instru_list_append(datas->instructions,op,destAddr,leftAddr,rightAddr);
     //fprintf(datas->file,"%s %d %d %d\n",op,destAddr,leftAddr,rightAddr);
-    (datas->line)++;
+    (*(datas->line))++;
 
 }
 void ast_write_at(char * op,int destAddr,int leftAddr,int rightAddr,build_data * datas,int line){
@@ -242,7 +248,7 @@ int addr_resolve(ast_node * node, build_data * datas,int * stack_shift){
 	return addr;
 }
 
-void ast_build_if(ast_node * node,build_data * datas){
+void ast_if_build(ast_node * node,build_data * datas){
 	ast_node_cell * cursor = node->childs->start;
 
 	ast_node * condition = cursor->node;
@@ -253,25 +259,40 @@ void ast_build_if(ast_node * node,build_data * datas){
 
 	ast_node * false_body = (cursor!=NULL)?cursor->node:NULL;
 	int stack_shift = 0;
-
-	int addr = addr_resolve(condition, datas, &stack_shift);
-	*(datas->right_addr_max) += stack_shift;
 	int current = *(datas->line);
 	(*(datas->line))++;
+	int addr = addr_resolve(condition, datas, &stack_shift);
+	*(datas->right_addr_max) += stack_shift;
 	ast_node_build(true_body,datas);
 	if(false_body !=NULL){
 		int incond = *(datas->line);
 		(*(datas->line))++;
 		ast_node_build(false_body,datas);
-		ast_write_at("JMF", addr, incond+1, -1, datas, current);
+		ast_write_at("JMF", addr, incond + 1, -1, datas, current);
 		ast_write_at("JMP", *(datas->line), -1, -1, datas, incond);
 	}
 	else{
 		ast_write_at("JMF", addr, *(datas->line), -1, datas, current);
 	}
+}
 
+void ast_while_build(ast_node * node, build_data * datas){
+	ast_node_cell * cursor = node->childs->start;
 
+	ast_node * condition = cursor->node;
+	cursor = cursor->suiv;
 
+	ast_node * body = cursor->node;
+	cursor = cursor->suiv;
+
+	int stack_shift = 0;
+	int current = *(datas->line);
+	(*(datas->line))++;
+	int addr = addr_resolve(condition, datas, &stack_shift);
+	*(datas->right_addr_max) += stack_shift;
+	ast_node_build(body,datas);
+	ast_write("JMP", current, -1, -1, datas);
+	ast_write_at("JMF", addr, *(datas->line), -1, datas, current);
 }
 
 //Declaration et affectation d'une constante
@@ -394,7 +415,10 @@ void ast_node_build(ast_node * node, build_data * datas){
 			printf("[DEBUG]SEQOVER\n");
 			break;
 		case AST_CODE_IF:
-			ast_build_if(node, datas);
+			ast_if_build(node, datas);
+			break;
+		case AST_CODE_WHILE:
+			ast_while_build(node,datas);
 			break;
 		case AST_CODE_INT:
 			ast_int_build(node, datas);

@@ -26,7 +26,7 @@
 
 %union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s}
 %type <s> T_NAME 
-%type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR CMD PRINT BLOC IF assignement declaration declare_assignement  
+%type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR CMD PRINT BLOC IF WHILE assignement declaration declare_assignement  
 %type <i>  T_ADD T_SUB T_MUL T_DIV T_INT T_IF T_ELSE T_WHILE 
 %type <noli> BODY T_NAMELIST 
 %%
@@ -46,12 +46,15 @@ BODY :
 IF : T_IF T_POPEN EXPR T_PCLOSE BLOC { $$ = ast_node_if($3,$5,NULL);}
 	|T_IF T_POPEN EXPR T_PCLOSE BLOC T_ELSE BLOC {$$ = ast_node_if($3,$5,$7);} 
 	;
+WHILE : T_WHILE T_POPEN EXPR T_PCLOSE BLOC {$$ = ast_node_while($3,$5);}
+	;
 
 CMD : declare_assignement
     |declaration
     |assignement
     |PRINT
     |IF
+    |WHILE
     ;
 
 EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variable
