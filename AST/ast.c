@@ -259,20 +259,20 @@ void ast_if_build(ast_node * node,build_data * datas){
 
 	ast_node * false_body = (cursor!=NULL)?cursor->node:NULL;
 	int stack_shift = 0;
-	int current = *(datas->line);
 	(*(datas->line))++;
 	int addr = addr_resolve(condition, datas, &stack_shift);
+	int jmf_line = *(datas->line);
 	*(datas->right_addr_max) += stack_shift;
 	ast_node_build(true_body,datas);
 	if(false_body !=NULL){
 		int incond = *(datas->line);
 		(*(datas->line))++;
 		ast_node_build(false_body,datas);
-		ast_write_at("JMF", addr, incond + 1, -1, datas, current);
+		ast_write_at("JMF", addr, incond + 1, -1, datas, jmf_line);
 		ast_write_at("JMP", *(datas->line), -1, -1, datas, incond);
 	}
 	else{
-		ast_write_at("JMF", addr, *(datas->line), -1, datas, current);
+		ast_write_at("JMF", addr, *(datas->line), -1, datas, jmf_line);
 	}
 }
 
@@ -286,13 +286,14 @@ void ast_while_build(ast_node * node, build_data * datas){
 	cursor = cursor->suiv;
 
 	int stack_shift = 0;
-	int current = *(datas->line);
+	int expr_line = *(datas->line);
 	(*(datas->line))++;
 	int addr = addr_resolve(condition, datas, &stack_shift);
+	int jmf_line = *(datas->line);
 	*(datas->right_addr_max) += stack_shift;
 	ast_node_build(body,datas);
-	ast_write("JMP", current, -1, -1, datas);
-	ast_write_at("JMF", addr, *(datas->line), -1, datas, current);
+	ast_write("JMP", expr_line, -1, -1, datas);
+	ast_write_at("JMF", addr, *(datas->line), -1, datas, jmf_line);
 }
 
 //Declaration et affectation d'une constante
