@@ -1,1 +1,1 @@
-main(){const a = 2; a=a+2}
+main(){int a = 2;int b=0;if(a){b=5; int c = 4*b+5-6+a}else{b=2;a=b*3}}
