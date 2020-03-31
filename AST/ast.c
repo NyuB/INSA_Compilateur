@@ -173,6 +173,12 @@ ast_node * ast_node_while(ast_node * condition, ast_node * body){
 	return ast_new_node(AST_CODE_WHILE,NULL,2,three);
 }
 
+ast_node * ast_node_print(ast_node * expression){
+	ast_node_list * child = ast_node_list_empty();
+	ast_node_list_append(child,expression);
+	return ast_new_node(AST_CODE_PRINT, NULL, 1,child);
+}
+
 ast_node * ast_int(int integer){
 	int * content = (int *)malloc(sizeof(int));
 	*(content) = integer;
@@ -259,9 +265,9 @@ void ast_if_build(ast_node * node,build_data * datas){
 
 	ast_node * false_body = (cursor!=NULL)?cursor->node:NULL;
 	int stack_shift = 0;
-	(*(datas->line))++;
 	int addr = addr_resolve(condition, datas, &stack_shift);
 	int jmf_line = *(datas->line);
+	(*(datas->line))++;
 	*(datas->right_addr_max) += stack_shift;
 	ast_node_build(true_body,datas);
 	if(false_body !=NULL){
@@ -287,13 +293,20 @@ void ast_while_build(ast_node * node, build_data * datas){
 
 	int stack_shift = 0;
 	int expr_line = *(datas->line);
-	(*(datas->line))++;
 	int addr = addr_resolve(condition, datas, &stack_shift);
 	int jmf_line = *(datas->line);
+	(*(datas->line))++;
 	*(datas->right_addr_max) += stack_shift;
 	ast_node_build(body,datas);
 	ast_write("JMP", expr_line, -1, -1, datas);
 	ast_write_at("JMF", addr, *(datas->line), -1, datas, jmf_line);
+}
+
+void ast_print_build(ast_node * node, build_data * datas){
+	int stack_shift = 0;
+	int addr = addr_resolve(node->childs->start->node,datas,&stack_shift);
+	(*(datas->right_addr_max))++;
+	ast_write("PRI", addr, -1, -1, datas);
 }
 
 //Declaration et affectation d'une constante
@@ -423,6 +436,9 @@ void ast_node_build(ast_node * node, build_data * datas){
 			break;
 		case AST_CODE_INT:
 			ast_int_build(node, datas);
+			break;
+		case AST_CODE_PRINT:
+			ast_print_build(node,datas);
 			break;
 		case AST_CODE_VAR:
 			printf("[DEBUG]Un noeud AST_CODE_VAR(référence à une variable) ne devrait pas être traité dans le switch...\n");
