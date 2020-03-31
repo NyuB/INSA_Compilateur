@@ -17,10 +17,8 @@
 #define AST_CODE_SEQ 8
 #define AST_CODE_CON 9
 #define AST_CODE_INT 10
-
 #define AST_SEMANTIC_ERROR -2
 #define AST_STACK_REQ_ERROR -3
-
 #define AST_TYPESIZE_INT 1
 
 

@@ -71,7 +71,7 @@ name_info * nli_contains(name_list * list, char * name){
 void nli_display(name_list * list){
 	name_cell * aux = list->start;
 	while(aux != NULL){
-		printf("=> %s %d %d %s ", aux->info->name, aux->info->size, aux->info->addr, (aux->info->status == VS_MUTABLE)?"var":"const");
+		printf("=> %s %d %d %s ", aux->info->name, aux->info->size, aux->info->addr, (aux->info->status == NS_MUTABLE)?"var":"const");
 		aux = aux->suiv;
 	}
 	printf("\n");

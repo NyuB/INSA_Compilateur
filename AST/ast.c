@@ -131,7 +131,7 @@ name_info * name_resolve(name_list * var_list, ast_node * node){
 		return NULL;
 	}
 	else{
-		if(info->status == VS_MUTABLE){
+		if(info->status == NS_MUTABLE){
 			printf("Warning : variable [ %s ] may be used before initialization\n",(char *)(node->content));
 		}
 		return info;
@@ -163,7 +163,7 @@ void ast_const_build(ast_node * node, name_list * var_list,int * left_addr_min,i
 	else{
 		ast_node * right = node->childs->start->node;
 		rightAddr = addr_resolve(right, var_list, left_addr_min, right_addr_max, &stack_shift, file);
-		nli_append(var_list, (char *)(node->content), AST_TYPESIZE_INT, *left_addr_min, VS_CONSTANT);
+		nli_append(var_list, (char *)(node->content), AST_TYPESIZE_INT, *left_addr_min, NS_CONSTANT);
 		ast_write(file,"COP", *left_addr_min, rightAddr, -1);
 		(*left_addr_min) ++;
 		(*right_addr_max) += stack_shift;
@@ -202,13 +202,13 @@ void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 	if(info == NOT_FOUND){
 		printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(left->node->content));
 	}
-	else if(info->status == VS_CONSTANT){
+	else if(info->status == NS_CONSTANT){
 		printf("Semantic error : constant [ %s ] can't be affected after declaration\n",(char *)(left->node->content));
 	}
 	else{
 		leftAddr = info->addr;
 	}
-	info -> status = VS_ASSIGNED;
+	info -> status = NS_ASSIGNED;
 	rightAddr = addr_resolve(right->node, var_list, left_addr_min, right_addr_max, &stack_shift, file);
 	(*right_addr_max)+=stack_shift;
 	ast_write(file,"COP",leftAddr,rightAddr,-1);
@@ -256,7 +256,7 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 				printf("Semantic error : [ %s ] is already declared\n",(char*)(node->content));
 				//TODO lever une erreur et quitter?
 			}
-			nli_append(var_list,(char*)(node->content), AST_TYPESIZE_INT, *left_addr_min, VS_MUTABLE);//On ajoute ce nom à la liste des noms déclarés
+			nli_append(var_list,(char*)(node->content), AST_TYPESIZE_INT, *left_addr_min, NS_MUTABLE);//On ajoute ce nom à la liste des noms déclarés
 			(*left_addr_min)++;//On décale l'index "d'écriture" de l'espace des variables déclarées
 			printf("[DEBUG]DECLARE %s %d\n",(char *)(node->content),*left_addr_min);
 			break;

@@ -8,11 +8,11 @@
 typedef struct name_list name_list;
 
 typedef enum name_status{
-	VS_CONSTANT,
-	VS_MUTABLE,
-	VS_ASSIGNED,
-	VS_FUNCTION,
-	VS_NOTFOUND
+	NS_CONSTANT,
+	NS_MUTABLE,
+	NS_ASSIGNED,
+	NS_FUNCTION,
+	NS_NOTFOUND
 }var_status;
 
 typedef struct name_info {
