@@ -21,14 +21,14 @@
 %left T_SUB
 %left T_MUL T_DIV
 
-%token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA
+%token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA T_WHILE T_IF T_ELSE
 
 
 %union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s}
 %type <s> T_NAME 
-%type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR CMD PRINT BLOC assignement declaration declare_assignement  
-%type <i>  T_ADD T_SUB T_MUL T_DIV T_INT
-%type <noli> BODY T_NAMELIST
+%type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR CMD PRINT BLOC IF assignement declaration declare_assignement  
+%type <i>  T_ADD T_SUB T_MUL T_DIV T_INT T_IF T_ELSE T_WHILE 
+%type <noli> BODY T_NAMELIST 
 %%
 
 start : T_MAIN T_POPEN T_PCLOSE BLOC {printf("MAIN\n");tree = ast_new($4);}
@@ -43,10 +43,15 @@ BODY :
     |CMD T_SEP BODY {ast_node_list * l = $3; ast_node_list_prepend(l,$1);$$=l;}
     ;
 
+IF : T_IF T_POPEN EXPR T_PCLOSE BLOC { $$ = ast_node_if($3,$5,NULL);}
+	|T_IF T_POPEN EXPR T_PCLOSE BLOC T_ELSE BLOC {$$ = ast_node_if($3,$5,$7);} 
+	;
+
 CMD : declare_assignement
     |declaration
     |assignement
     |PRINT
+    |IF
     ;
 
 EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variable
@@ -59,6 +64,7 @@ EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variabl
     |T_SUB EXPR {printf("MIN-EXPR\n");$$ = ast_math(ASM_SUB,ast_int(0),$2);}//Construction d'une négation par 0-expr
     |T_ADD EXPR {printf("PLUS-EXPR\n");$$ = $2;}
     ;
+
 
 PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE
       ;

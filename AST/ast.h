@@ -17,6 +17,7 @@
 #define AST_CODE_SEQ 8
 #define AST_CODE_CON 9
 #define AST_CODE_INT 10
+#define AST_CODE_IF 11
 #define AST_SEMANTIC_ERROR -2
 #define AST_STACK_REQ_ERROR -3
 #define AST_TYPESIZE_INT 1
@@ -44,6 +45,10 @@ typedef struct ast_node_list{
 	ast_node_cell * start;
 	ast_node_cell * end;
 }ast_node_list;
+
+
+
+
 
 //Fonctions de génération des noeuds (à exploiter dans le yacc)
 ast_node * ast_new_node(int code, void * content,int nb_childs,ast_node_list * childs); //fonction générique de création de noeud, a priori ne devrait pas être utilisée telle quelle

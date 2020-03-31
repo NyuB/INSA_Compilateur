@@ -49,7 +49,65 @@ int ast_node_list_length(ast_node_list * list){
 	return res;
 }
 
+typedef struct asm_cell{
+	char * instru;
+	int destAddr;
+	int leftAddr;
+	int rightAddr;
+	struct asm_cell * next;
+}asm_cell;
 
+typedef struct asm_instru_list{
+	asm_cell * start;
+}asm_instru_list;
+
+asm_instru_list * asm_instru_list_empty(){
+	asm_instru_list * res = (asm_instru_list *)malloc(1*sizeof(asm_instru_list));
+	res->start = NULL;
+	return res;
+}
+
+asm_cell * asm_cell_new(char * s,int destAddr,int leftAddr,int rightAddr){
+	asm_cell * new = (asm_cell *)malloc(1*sizeof(asm_cell));
+	int len = strlen(s)+1;
+	new->instru = (char *)malloc(len*sizeof(char));
+	new->destAddr = destAddr;
+	new->leftAddr = leftAddr;
+	new->rightAddr = rightAddr;
+	myncpy(new->instru, s, len);
+	new->next = NULL;
+	return new;
+}
+
+void asm_instru_list_append(asm_instru_list * list,char * s,int destAddr,int leftAddr,int rightAddr){
+	asm_cell * new = asm_cell_new(s, destAddr, leftAddr, rightAddr);
+	if(list->start==NULL){
+		list->start = new;
+	}
+	else{
+		asm_cell * cursor = list->start;
+		while(cursor->next != NULL){
+			cursor = cursor->next;
+		}
+		cursor->next = new;
+	}
+}
+
+void asm_instru_list_insert(asm_instru_list * list,char * s, int destAddr, int leftAddr, int rightAddr, int index){
+	asm_cell * new = asm_cell_new(s, destAddr, leftAddr, rightAddr);
+	if(index == 0){
+		new->next = list->start;
+		list->start=new;
+	}
+	else{
+		asm_cell * cursor = list->start;
+		for(int i=1;i<index;i++){
+			cursor=cursor->next;
+		}
+		new->next = cursor->next;
+		cursor->next=new;
+	}
+}
 //Fonctions de création de noeud spécifique
 
 //Retourne un noeud de code AST_CODE_VAR ayant pour contenu une copie du nom en argument et ne possédant aucun fils
@@ -99,16 +157,21 @@ ast_node * ast_node_seq(ast_node_list * list){
 	return ast_new_node(AST_CODE_SEQ,NULL,ast_node_list_length(list),list);
 }
 
+ast_node * ast_node_if(ast_node * condition, ast_node * true_body, ast_node * false_body){
+	ast_node_list * three = ast_node_list_empty();
+	ast_node_list_prepend(three,false_body);
+	ast_node_list_prepend(three,true_body);
+	ast_node_list_prepend(three,condition);
+	return ast_new_node(AST_CODE_IF,NULL,3,three);
+}
+
 ast_node * ast_int(int integer){
 	int * content = (int *)malloc(sizeof(int));
 	*(content) = integer;
 	return ast_new_node(AST_CODE_INT, content,0,NULL);
 }
 
-//Fonctions d'écriture 
-void ast_write(FILE * file,const char * op,int destAddr,int leftAddr,int rightAddr){
-    fprintf(file,"%s %d %d %d\n",op,destAddr,leftAddr,rightAddr);
-}
+
 
 //Fonctions de construction de l'AST
 ast * ast_new(ast_node * root){
@@ -124,8 +187,28 @@ typedef struct build_data{
 	int * left_addr_min;
 	int * right_addr_max;
 	int * line;
+	asm_instru_list * instructions;
 	FILE * file;
 }build_data;
+
+//Fonctions d'écriture 
+void ast_write(char * op,int destAddr,int leftAddr,int rightAddr,build_data * datas){
+	asm_instru_list_append(datas->instructions,op,destAddr,leftAddr,rightAddr);
+    //fprintf(datas->file,"%s %d %d %d\n",op,destAddr,leftAddr,rightAddr);
+    (datas->line)++;
+
+}
+void ast_write_at(char * op,int destAddr,int leftAddr,int rightAddr,build_data * datas,int line){
+	asm_instru_list_insert(datas->instructions, op, destAddr, leftAddr,rightAddr, line);
+	//fprintf(datas->file,"%s %d %d %d\n",op,destAddr,leftAddr,rightAddr);
+}
+void asm_write_all(build_data * datas){
+	asm_cell * cursor = datas->instructions->start;
+	while(cursor!=NULL){
+		fprintf(datas->file,"%s %d %d %d\n",cursor->instru,cursor->destAddr,cursor->leftAddr,cursor->rightAddr);
+		cursor = cursor->next;
+	}
+}
 
 //Fonction récursive principale d'interprétation des noeuds, voire plus bas
 void ast_node_build(ast_node * node, build_data * datas);
@@ -159,6 +242,38 @@ int addr_resolve(ast_node * node, build_data * datas,int * stack_shift){
 	return addr;
 }
 
+void ast_build_if(ast_node * node,build_data * datas){
+	ast_node_cell * cursor = node->childs->start;
+
+	ast_node * condition = cursor->node;
+	cursor = cursor->suiv;
+
+	ast_node * true_body = cursor->node;
+	cursor = cursor->suiv;
+
+	ast_node * false_body = (cursor!=NULL)?cursor->node:NULL;
+	int stack_shift = 0;
+
+	int addr = addr_resolve(condition, datas, &stack_shift);
+	*(datas->right_addr_max) += stack_shift;
+	int current = *(datas->line);
+	(*(datas->line))++;
+	ast_node_build(true_body,datas);
+	if(false_body !=NULL){
+		int incond = *(datas->line);
+		(*(datas->line))++;
+		ast_node_build(false_body,datas);
+		ast_write_at("JMF", addr, incond+1, -1, datas, current);
+		ast_write_at("JMP", *(datas->line), -1, -1, datas, incond);
+	}
+	else{
+		ast_write_at("JMF", addr, *(datas->line), -1, datas, current);
+	}
+
+
+
+}
+
 //Declaration et affectation d'une constante
 void ast_const_build(ast_node * node, build_data * datas){
 	name_info * info = nli_contains(datas->var_list,(char *)(node->content));
@@ -172,7 +287,7 @@ void ast_const_build(ast_node * node, build_data * datas){
 		ast_node * right = node->childs->start->node;
 		rightAddr = addr_resolve(right, datas, &stack_shift);
 		nli_append(datas->var_list, (char *)(node->content), AST_TYPESIZE_INT, *(datas->left_addr_min), NS_CONSTANT);
-		ast_write(datas->file,"COP", *(datas->left_addr_min), rightAddr, -1);
+		ast_write("COP", *(datas->left_addr_min), rightAddr, -1,datas);
 		(*(datas->left_addr_min)) ++;
 		*(datas->right_addr_max) += stack_shift;
 	}
@@ -180,7 +295,7 @@ void ast_const_build(ast_node * node, build_data * datas){
 }
 
 //Fonction d'interprétation d'une expression à deux opérandes. Vérifie la nature des opérandes pour ajuster les opérations sur la stack
-void ast_math_build(const char * op,ast_node * node, build_data * datas){
+void ast_math_build(char * op,ast_node * node, build_data * datas){
 	ast_node_cell * left = node->childs->start;
 	ast_node_cell * right = left->suiv;
 	int leftAddr;
@@ -189,13 +304,13 @@ void ast_math_build(const char * op,ast_node * node, build_data * datas){
 	rightAddr = addr_resolve(right->node, datas, &stack_shift);
 	leftAddr = addr_resolve(left->node, datas, &stack_shift);
 	int addr = *(datas->right_addr_max)+stack_shift-1;//Le résultat est "placé" dans la pile après "consommation" des deux opérandes
-	ast_write(datas->file,op, addr, leftAddr, rightAddr);//écriture de l'opération dans le fichier assembleur
+	ast_write(op, addr, leftAddr, rightAddr,datas);//écriture de l'opération dans le fichier assembleur
 	*(datas->right_addr_max) = addr;
 }
 
 void ast_int_build(ast_node * node, build_data * datas){
 	(*(datas->right_addr_max))--;
-	ast_write(datas->file, "AFC", *(datas->right_addr_max),*((int*)(node->content)),-1);
+	ast_write( "AFC", *(datas->right_addr_max),*((int*)(node->content)),-1,datas);
 }
 
 
@@ -219,10 +334,9 @@ void ast_aff_build(ast_node * node, build_data * datas){
 	info -> status = NS_ASSIGNED;
 	rightAddr = addr_resolve(right->node, datas, &stack_shift);
 	*(datas->right_addr_max)+=stack_shift;
-	ast_write(datas->file,"COP",leftAddr,rightAddr,-1);
+	ast_write("COP",leftAddr,rightAddr,-1,datas);
 	
 }
-ast_node * ast_node_if(ast_node * condition, ast_node * true, ast_node * false);//noeud if (bloc else dans le noeud false)
 
 /*Fonction récursive principale d'interprétation de l'AST
 paramètre (valeur initiale) => description
@@ -279,11 +393,9 @@ void ast_node_build(ast_node * node, build_data * datas){
 			}
 			printf("[DEBUG]SEQOVER\n");
 			break;
-		/*
 		case AST_CODE_IF:
 			ast_build_if(node, datas);
 			break;
-		*/
 		case AST_CODE_INT:
 			ast_int_build(node, datas);
 			break;
@@ -314,7 +426,9 @@ void ast_build(ast * tree,const char * filename,int mem_size){
 	data->var_list = vars;
 	data->file = file;
 	data->line = &line;
+	data->instructions = asm_instru_list_empty();
 	ast_node_build(tree->root,data);//Lancement de la récursion
+	asm_write_all(data);
 	fclose(file);
 }
 
