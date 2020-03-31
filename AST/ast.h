@@ -54,6 +54,7 @@ ast_node * ast_affect(ast_node * a,ast_node * b);// name = expr
 ast_node * ast_var(char * name);//réference à une variable nommée, exemple a
 ast_node * ast_int(int integer);//entier écrit "en clair"
 ast_node * ast_node_seq(ast_node_list * list);//sequence d'instructions, exemple : int a; int b; a=b+2;
+ast_node * ast_node_if(ast_node * condition, ast_node * true, ast_node * false);//noeud if (bloc else dans le noeud false)
 
 //Fonctions de manipulation des listes de noeuds
 ast_node_list * ast_node_list_empty(void);//génère une liste vite

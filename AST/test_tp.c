@@ -1,1 +1,1 @@
-main(){int a = 2;int b;b=2*a+4-a+6/a}
+main(){const a = 2; a=a+2}

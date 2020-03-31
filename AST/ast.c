@@ -119,8 +119,16 @@ ast * ast_new(ast_node * root){
 
 //Fonctions d'interprétation de l'AST
 
+typedef struct build_data{
+	name_list * var_list;
+	int * left_addr_min;
+	int * right_addr_max;
+	int * line;
+	FILE * file;
+}build_data;
+
 //Fonction récursive principale d'interprétation des noeuds, voire plus bas
-void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file);
+void ast_node_build(ast_node * node, build_data * datas);
 
 //Assume que le noeud contient une string (noeud de référence à un nom) , et vérifie qu'il est bien présent dans le namespace donné en argument ,et retourne son adresse
 name_info * name_resolve(name_list * var_list, ast_node * node){
@@ -138,22 +146,22 @@ name_info * name_resolve(name_list * var_list, ast_node * node){
 	}
 }
 
-int addr_resolve(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max, int * stack_shift, FILE * file){
+int addr_resolve(ast_node * node, build_data * datas,int * stack_shift){
 	int addr;
 	if(node->code == AST_CODE_VAR){
-		addr = name_resolve(var_list, node)->addr;
+		addr = name_resolve(datas->var_list, node)->addr;
 	}
 	else{
-		ast_node_build(node, var_list, left_addr_min, right_addr_max, file);
-		addr = *right_addr_max;
+		ast_node_build(node, datas);
+		addr = *(datas->right_addr_max);
 		(*stack_shift)++;
 	}
 	return addr;
 }
 
 //Declaration et affectation d'une constante
-void ast_const_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
-	name_info * info = nli_contains(var_list,(char *)(node->content));
+void ast_const_build(ast_node * node, build_data * datas){
+	name_info * info = nli_contains(datas->var_list,(char *)(node->content));
 	int rightAddr;
 	int stack_shift=0;
 	if(info != NOT_FOUND){//Vérifier que ce nom n'est pas déjà déclaré
@@ -162,43 +170,43 @@ void ast_const_build(ast_node * node, name_list * var_list,int * left_addr_min,i
 	}
 	else{
 		ast_node * right = node->childs->start->node;
-		rightAddr = addr_resolve(right, var_list, left_addr_min, right_addr_max, &stack_shift, file);
-		nli_append(var_list, (char *)(node->content), AST_TYPESIZE_INT, *left_addr_min, NS_CONSTANT);
-		ast_write(file,"COP", *left_addr_min, rightAddr, -1);
-		(*left_addr_min) ++;
-		(*right_addr_max) += stack_shift;
+		rightAddr = addr_resolve(right, datas, &stack_shift);
+		nli_append(datas->var_list, (char *)(node->content), AST_TYPESIZE_INT, *(datas->left_addr_min), NS_CONSTANT);
+		ast_write(datas->file,"COP", *(datas->left_addr_min), rightAddr, -1);
+		(*(datas->left_addr_min)) ++;
+		*(datas->right_addr_max) += stack_shift;
 	}
 
 }
 
 //Fonction d'interprétation d'une expression à deux opérandes. Vérifie la nature des opérandes pour ajuster les opérations sur la stack
-void ast_math_build(const char * op,ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
+void ast_math_build(const char * op,ast_node * node, build_data * datas){
 	ast_node_cell * left = node->childs->start;
 	ast_node_cell * right = left->suiv;
 	int leftAddr;
 	int rightAddr;
 	int stack_shift = 0;
-	rightAddr = addr_resolve(right->node, var_list, left_addr_min, right_addr_max, &stack_shift, file);
-	leftAddr = addr_resolve(left->node, var_list, left_addr_min, right_addr_max, &stack_shift, file);
-	int addr = *right_addr_max+stack_shift-1;//Le résultat est "placé" dans la pile après "consommation" des deux opérandes
-	ast_write(file,op, addr, leftAddr, rightAddr);//écriture de l'opération dans le fichier assembleur
-	*right_addr_max = addr;
+	rightAddr = addr_resolve(right->node, datas, &stack_shift);
+	leftAddr = addr_resolve(left->node, datas, &stack_shift);
+	int addr = *(datas->right_addr_max)+stack_shift-1;//Le résultat est "placé" dans la pile après "consommation" des deux opérandes
+	ast_write(datas->file,op, addr, leftAddr, rightAddr);//écriture de l'opération dans le fichier assembleur
+	*(datas->right_addr_max) = addr;
 }
 
-void ast_int_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
-	(*right_addr_max)--;
-	ast_write(file, "AFC", (*right_addr_max),*((int*)(node->content)),-1);
+void ast_int_build(ast_node * node, build_data * datas){
+	(*(datas->right_addr_max))--;
+	ast_write(datas->file, "AFC", *(datas->right_addr_max),*((int*)(node->content)),-1);
 }
 
 
 
-void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
+void ast_aff_build(ast_node * node, build_data * datas){
 	ast_node_cell * left = node->childs->start;
 	ast_node_cell * right = left->suiv;
 	int rightAddr;
 	int stack_shift = 0;
 	int leftAddr;
-	name_info * info = nli_contains(var_list,(char*)(left->node->content));//On récupère l'index de la variable dans la liste des noms déclarés
+	name_info * info = nli_contains(datas->var_list,(char*)(left->node->content));//On récupère l'index de la variable dans la liste des noms déclarés
 	if(info == NOT_FOUND){
 		printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(left->node->content));
 	}
@@ -209,11 +217,12 @@ void ast_aff_build(ast_node * node, name_list * var_list,int * left_addr_min,int
 		leftAddr = info->addr;
 	}
 	info -> status = NS_ASSIGNED;
-	rightAddr = addr_resolve(right->node, var_list, left_addr_min, right_addr_max, &stack_shift, file);
-	(*right_addr_max)+=stack_shift;
-	ast_write(file,"COP",leftAddr,rightAddr,-1);
+	rightAddr = addr_resolve(right->node, datas, &stack_shift);
+	*(datas->right_addr_max)+=stack_shift;
+	ast_write(datas->file,"COP",leftAddr,rightAddr,-1);
 	
 }
+ast_node * ast_node_if(ast_node * condition, ast_node * true, ast_node * false);//noeud if (bloc else dans le noeud false)
 
 /*Fonction récursive principale d'interprétation de l'AST
 paramètre (valeur initiale) => description
@@ -225,53 +234,58 @@ right_addr_max (taille_memoire) => dernière addresse écrite de la stack
 file (constant) => fichier assembleur où écrire les instructions au cours de l'exploration
 
 */
-void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,int * right_addr_max,FILE * file){
-	if(*left_addr_min > *right_addr_max){//On vérifie que l'espace des variables ne dépasse pas dans la pile
+void ast_node_build(ast_node * node, build_data * datas){
+	if(*(datas->left_addr_min) > *(datas->right_addr_max)){//On vérifie que l'espace des variables ne dépasse pas dans la pile
 		printf("Specification error : expression evaluation will require too much stack\n");
 		printf("Allow more stack or split/condense nested expressions\n");
 	}
 	switch(node->code){
 		case AST_CODE_ADD:
-			ast_math_build("ADD",node,var_list,left_addr_min,right_addr_max,file);
+			ast_math_build("ADD",node,datas);
 			printf("[DEBUG]MATHOP ADD\n");	
 			break;
 		case AST_CODE_MUL:
-			ast_math_build("MUL",node,var_list,left_addr_min,right_addr_max,file);
+			ast_math_build("MUL",node,datas);
 			printf("[DEBUG]MATHOP MUL\n");	
 			break;
 		case AST_CODE_SUB:
-			ast_math_build("SUB",node,var_list,left_addr_min,right_addr_max,file);
+			ast_math_build("SUB",node,datas);
 			printf("[DEBUG]MATHOP SUB\n");
 			break;
 		case AST_CODE_DIV:
-			ast_math_build("DIV",node,var_list,left_addr_min,right_addr_max,file);
+			ast_math_build("DIV",node,datas);
 			printf("[DEBUG]MATHOP DIV\n");	
 			break;
 		case AST_CODE_AFF:
-			ast_aff_build(node,var_list,left_addr_min,right_addr_max,file);
+			ast_aff_build(node,datas);
 			printf("[DEBUG]AFFECT\n");	
 			break;
 		case AST_CODE_DCL:
-			if(nli_contains(var_list,(char*)(node->content)) != NOT_FOUND){//On vérifie que ce nom n'est pas déjà déclaré
+			if(nli_contains(datas->var_list,(char*)(node->content)) != NOT_FOUND){//On vérifie que ce nom n'est pas déjà déclaré
 				printf("Semantic error : [ %s ] is already declared\n",(char*)(node->content));
 				//TODO lever une erreur et quitter?
 			}
-			nli_append(var_list,(char*)(node->content), AST_TYPESIZE_INT, *left_addr_min, NS_MUTABLE);//On ajoute ce nom à la liste des noms déclarés
-			(*left_addr_min)++;//On décale l'index "d'écriture" de l'espace des variables déclarées
-			printf("[DEBUG]DECLARE %s %d\n",(char *)(node->content),*left_addr_min);
+			nli_append(datas->var_list,(char*)(node->content), AST_TYPESIZE_INT, *(datas->left_addr_min), NS_MUTABLE);//On ajoute ce nom à la liste des noms déclarés
+			(*(datas->left_addr_min))++;//On décale l'index "d'écriture" de l'espace des variables déclarées
+			printf("[DEBUG]DECLARE %s %d\n",(char *)(node->content),*(datas->left_addr_min));
 			break;
 		case AST_CODE_CON:
-			ast_const_build(node,var_list,left_addr_min,right_addr_max,file);
-			printf("[DEBUG]CONST %s %d\n",(char *)(node->content),*left_addr_min);
+			ast_const_build(node,datas);
+			printf("[DEBUG]CONST %s %d\n",(char *)(node->content),*(datas->left_addr_min));
 			break;
 		case AST_CODE_SEQ:
 			for(ast_node_cell * cursor = node->childs->start;cursor!=NULL;cursor=cursor->suiv){
-				ast_node_build(cursor->node,var_list,left_addr_min,right_addr_max,file);
+				ast_node_build(cursor->node,datas);
 			}
 			printf("[DEBUG]SEQOVER\n");
 			break;
+		/*
+		case AST_CODE_IF:
+			ast_build_if(node, datas);
+			break;
+		*/
 		case AST_CODE_INT:
-			ast_int_build(node,var_list,left_addr_min,right_addr_max,file);
+			ast_int_build(node, datas);
 			break;
 		case AST_CODE_VAR:
 			printf("[DEBUG]Un noeud AST_CODE_VAR(référence à une variable) ne devrait pas être traité dans le switch...\n");
@@ -281,7 +295,7 @@ void ast_node_build(ast_node * node, name_list * var_list,int * left_addr_min,in
 			break;
 	}
 	
-	if(*left_addr_min > *right_addr_max){//On vérifie à nouveau qu'il n'y a pas eu collision entre espace variable et stack
+	if(*(datas->left_addr_min) > *(datas->right_addr_max)){//On vérifie à nouveau qu'il n'y a pas eu collision entre espace variable et stack
 		printf("Specifications error : expression evaluation will require too much stack\n");
 		printf("Allow more stack or split/condense nested expressions\n");
 	}
@@ -293,7 +307,14 @@ void ast_build(ast * tree,const char * filename,int mem_size){
 	name_list * vars = nli_empty();
 	int minMem = 0;
 	int maxMem = mem_size;
-	ast_node_build(tree->root,vars,&minMem,&maxMem,file);//Lancement de la récursion
+	int line = 0;
+	build_data * data = (build_data *)malloc(1*sizeof(build_data));
+	data->left_addr_min = &minMem;
+	data->right_addr_max = &maxMem;
+	data->var_list = vars;
+	data->file = file;
+	data->line = &line;
+	ast_node_build(tree->root,data);//Lancement de la récursion
 	fclose(file);
 }
 

@@ -27,11 +27,16 @@ CCLOSE \]
 COMMA ,
 
 MAIN main
-
+IF if
+ELSE else
+WHILE while
 
 %%
 
 {MAIN} {printf("t_main");return T_MAIN;}
+{IF} {printf("t_if");return T_IF;}
+{ELSE} {printf("t_else");return T_ELSE;}
+{WHILE} {printf("t_while");return T_WHILE;}
 {PRINTF} {printf("t_printf");return T_PRINTF;}
 {CONST} {printf("t_const");return T_CONST;}
 {VAR} {printf("t_var");return T_VAR;}
