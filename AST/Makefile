@@ -17,7 +17,7 @@ exe : comp
 test: ast_test
 
 comp : y.tab.c lex.yy.c ast_all
-	${CC} ${CFLAGS} name_list.c scope.c ast.c y.tab.c lex.yy.c -o comp
+	${CC} ${CFLAGS} name_list.c scope.c ast.c ast_repr.c y.tab.c lex.yy.c -o comp
 
 lex.yy.c : lexer.l ast_all
 	${LEX} lexer.l
@@ -25,7 +25,7 @@ lex.yy.c : lexer.l ast_all
 y.tab.c : tokens.y ast_all
 	${YACC} ${YACCFLAGS} tokens.y
 
-ast_all : name_list.o ast.o scope.o 
+ast_all : name_list.o ast.o scope.o ast_repr.o
 
 ast.o : ast.c ast.h name_list.h scope.h
 	${CC} ${CFLAGS} -c ast.c

@@ -1,6 +1,8 @@
-# INSA_Compilateur
-Problèmes avec les expressions :
--où stocker le résultat? (pour l'instant registre "résultat" -1)
--gérer la différence variable/valeur
-idée: ecrire dans des adresses les valeurs des composantes de l'operation
--probleme des registres a utilise (nb d'operations -1 au minimum)
+# Dépôt/Archive du projet compilateur de 4IR INSA Toulouse
+# Groupe Dimitrios Doganis/Brice Decaestecker
+
+# Contenu :
+
+- Dossier proto : les premières implémentations de lexer/compilateur exécutant l'écriture assembleur dans le fichier yacc
+- Dossier AST : le projet après bifurcation "moins de yacc plus de c", on utilise une structure d'arbre(voir le fichier ast.h/c) construite dans le yacc puis une fonction d'interprétation qui écrit le fichier assembleur une fois l'analyse syntaxique terminée.
+- simulator-mem : l'interpréteur assembleur fourni
