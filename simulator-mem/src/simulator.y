@@ -37,13 +37,13 @@ Instruction:
         {asm_add_3(SOU, $2, $3, $4);}
     | tDIV tNB tNB tNB
         {asm_add_3(DIV, $2, $3, $4);}
-    | tCOP tNB tNB
+    | tCOP tNB tNB tNB
         {asm_add_2(COP, $2, $3);}
-    | tAFC tNB tNB
+    | tAFC tNB tNB tNB
         {asm_add_2(AFC, $2, $3);}
-    | tJMP tNB
+    | tJMP tNB tNB
         {asm_add_1(JMP, $2);}
-    | tJMF tNB tNB
+    | tJMF tNB tNB tNB
         {asm_add_2(JMF, $2, $3);}
     | tINF tNB tNB tNB
         {asm_add_3(INF, $2, $3, $4);}
@@ -51,7 +51,7 @@ Instruction:
         {asm_add_3(SUP, $2, $3, $4);}
     | tEQU tNB tNB tNB
         {asm_add_3(EQU, $2, $3, $4);}
-    | tPRI tNB
+    | tPRI tNB tNB tNB
         {asm_add_1(PRI, $2);}
     ;
 
@@ -60,7 +60,7 @@ Instruction:
 
 void yyerror(char* str) {
     extern int yylineno;
-    fprintf(stderr, "ERROR yyparse : Line %d: %s\n", yylineno, str);
+    fprintf(stderr, "ERROR yyparse : Line: %s\n", str);
 }
 
 int main(int argc, char *argv[]) {
