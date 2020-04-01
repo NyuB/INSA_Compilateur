@@ -69,7 +69,7 @@ EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variabl
     ;
 
 
-PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE
+PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE {$$=ast_node_print($3);}
       ;
 
 T_NAMELIST : T_NAME {ast_node_list * l = ast_node_list_empty(); ast_node_list_append(l, ast_declare($1));$$ = l; }

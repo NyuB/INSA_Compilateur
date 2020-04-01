@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include<string.h>
 
-#include "name_list.h"
+//#include "name_list.h"
+#include "scope.h"
 
 #define AST_CODE_ADD 1
 #define AST_CODE_MUL 2
@@ -48,11 +49,7 @@ typedef struct ast_node_list{
 	ast_node_cell * end;
 }ast_node_list;
 
-
-
-
-
-//Fonctions de génération des noeuds (à exploiter dans le yacc)
+//Fonctions de génération des noeuds (à exploiter dans le yacc pour construire l'AST avant interprétation)
 ast_node * ast_new_node(int code, void * content,int nb_childs,ast_node_list * childs); //fonction générique de création de noeud, a priori ne devrait pas être utilisée telle quelle
 ast_node * ast_declare(char * name);// Déclaration de variable, exemple : 'int a'
 ast_node * ast_declare_const(char * name, ast_node * expr);//declaration et affectation de constante
@@ -71,7 +68,7 @@ void ast_node_list_append(ast_node_list * list, ast_node * node);//ajoute un noe
 void ast_node_list_prepend(ast_node_list * list, ast_node * node);//ajoute un noeud en fin de liste
 
 //Fonctions sur l'AST global
-ast * ast_new(ast_node * root);//crée un ast ayant l'argument pour racine
-void ast_build(ast * tree,const char * filename,int mem_size); //fonction principale, une fois l'AST construit on l'interprète et écrit le fichier ASM. Cette fonction appelle sur la racie une fonction ast_node_build qui va traiter récursivement chaque noeud
+ast * ast_new(ast_node * root);//crée un ast ayant l'argument pour racine, a utiliser avant yyparse() pour initialiser l'AST à construire
+void ast_build(ast * tree,const char * filename,int mem_size); //interprète l'AST et écrit le fichier ASM. A appeler après yyparse() Cette fonction appelle sur la racine des fonctions ast_[node]_build qui vont traiter récursivement chaque noeud(voir ast.c pour le détail de ces fonctions)
 
 #endif
