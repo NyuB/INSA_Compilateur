@@ -1,1 +1,1 @@
-main(){int a = 2;int b=0;if(a){b=5; int c = 4*b+5-6+a}else{b=2;a=b*3}}
+main(){int a = 0;int b=a*2;if(a){printf(b)}else{printf(0)}}

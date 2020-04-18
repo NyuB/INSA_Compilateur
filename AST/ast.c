@@ -206,13 +206,11 @@ typedef struct build_data{
 //Fonctions d'écriture 
 void ast_write(char * op,int destAddr,int leftAddr,int rightAddr,build_data * datas){
 	asm_instru_list_append(datas->instructions,op,destAddr,leftAddr,rightAddr);
-    //fprintf(datas->file,"%s %d %d %d\n",op,destAddr,leftAddr,rightAddr);
     datas->line++;
 
 }
 void ast_write_at(char * op,int destAddr,int leftAddr,int rightAddr,build_data * datas,int line){
 	asm_instru_list_insert(datas->instructions, op, destAddr, leftAddr,rightAddr, line);
-	//fprintf(datas->file,"%s %d %d %d\n",op,destAddr,leftAddr,rightAddr);
 }
 void asm_write_all(build_data * datas){
 	asm_cell * cursor = datas->instructions->start;
@@ -254,6 +252,7 @@ int addr_resolve(ast_node * node, build_data * datas,int * stack_shift){
 	return addr;
 }
 
+//Bloc if qui construit chaque noeud avant d'insérer les instructions JMF/JMP pour savoir où sauter
 void ast_if_build(ast_node * node,build_data * datas){
 	ast_node_cell * cursor = node->childs->start;
 
@@ -264,24 +263,42 @@ void ast_if_build(ast_node * node,build_data * datas){
 	cursor = cursor->suiv;
 
 	ast_node * false_body = (cursor!=NULL)?cursor->node:NULL;
+
 	int stack_shift = 0;
-	int addr = addr_resolve(condition, datas, &stack_shift);
-	int jmf_line = datas->line;
-	datas->line++;
+	int addr = addr_resolve(condition, datas, &stack_shift); //Résolution de l'expression conditionnelle
+	int jmf_line = datas->line; //On conserve le numéro d'instruction où écrire le JMF en attendant de savoir où sauter
+	datas->line++;//On 'saute' une instruction(le JMF)
 	datas->right_addr_max += stack_shift;
+
+	//Gestion du scope des noms de variable, on crée un scope fils pour le noeud true, détruit après sa construction
+	scope * child = scp_empty_contained(datas->var_list);
+	datas->var_list=child;
 	ast_node_build(true_body,datas);
+	datas->var_list = child->container;
+	free(child);
+
 	if(false_body !=NULL){
-		int incond = datas->line;
-		datas->line++;
+		int incond = datas->line;//On conserve le numéro d'instruction où écrire le JMP en attendant de savoir où sauter
+		datas->line++;//On 'saute' une instruction(le JMP)
+
+		//Gestion du scope pour le bloc false, qui ne s'intersecte donc pas avec celui du bloc true
+		child = scp_empty_contained(datas->var_list);
+		datas->var_list = child;
 		ast_node_build(false_body,datas);
+		datas->var_list = child->container;
+		free(child);
+
+		
+		//On connaît maintenant la taille du bloc true et false, on insère les instructions JMP et JFM
 		ast_write_at("JMF", addr, incond + 1, -1, datas, jmf_line);
 		ast_write_at("JMP", datas->line, -1, -1, datas, incond);
 	}
 	else{
-		ast_write_at("JMF", addr, datas->line, -1, datas, jmf_line);
+		ast_write_at("JMF", addr, datas->line, -1, datas, jmf_line);//On connaît maintenant la taille du bloc, on insère l'instruction JMF avec le numéro d'instruction courant en argument
 	}
 }
 
+//Cf bloc if, logique similaire
 void ast_while_build(ast_node * node, build_data * datas){
 	ast_node_cell * cursor = node->childs->start;
 
@@ -297,7 +314,13 @@ void ast_while_build(ast_node * node, build_data * datas){
 	int jmf_line = datas->line;
 	datas->line++;
 	datas->right_addr_max += stack_shift;
+
+	scope * child = scp_empty_contained(datas->var_list);
+	datas->var_list = child;
 	ast_node_build(body,datas);
+	datas->var_list = child->container;
+	free(child);
+
 	ast_write("JMP", expr_line, -1, -1, datas);
 	ast_write_at("JMF", addr, datas->line, -1, datas, jmf_line);
 }

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "name_list.h"
 #include "ast.h"
+#include "ast_repr.h"
 #define MAX 63
 #define ASM_ADD 1
 #define ASM_MUL 2
@@ -24,7 +25,7 @@
 %token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA T_WHILE T_IF T_ELSE
 
 
-%union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s}
+%union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s;}
 %type <s> T_NAME 
 %type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR CMD PRINT BLOC IF WHILE assignement declaration declare_assignement  
 %type <i>  T_ADD T_SUB T_MUL T_DIV T_INT T_IF T_ELSE T_WHILE 
@@ -106,5 +107,6 @@ int main(void){
     const char * filename = "./assembly.asm";
     yyparse();
     ast_build(tree,filename,64);
+    ast_display(tree);
     return 0;
 }

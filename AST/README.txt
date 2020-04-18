@@ -19,10 +19,11 @@ TODO-LIST :
 1 :
 	-if/else : créer un type de noeud condition/comparaison, et un noeud de type if à 3 opérandes (condition,sequence,sequence)
 	/!\ va demander de gérer les jumps et les numéros de ligne assembleurs /!\ => FAIT le 31/03 + while
-	-gérer les scopes (i.e "niveau","altitude" d'un nom de variable) exemple : ne pas pouvoir référencer une variable déclarée dans un if dans le else qui suit => structures C codées, reste à intégrer à l'ast(après implémentation du if-else probablement)
+	-gérer les scopes (i.e "niveau","altitude" d'un nom de variable) exemple : ne pas pouvoir référencer une variable déclarée dans un if dans le else qui suit => structures C codées, reste à intégrer à l'ast(après implémentation du if-else probablement) => FAIT le 18/04
+	NB : Choix de gérer les scopes de la manière suivante : un nom déclaré dans un scope supérieur ne peut être réutilisé les scopes imbriqués, ce qui diffère donc légèrement du C traditionnel mais évite de potentielles confusions.
 2:
 	-pointeurs
-	-fonctions : élargir les possibilités de expr, créer un noeud fonction a n arguments
+	-fonctions : élargir les possibilités de expr, créer un noeud fonction à n arguments => Requiert une nouvelle instru assembleur si on ne veut pas recopier "bêtement" les mêmes instrus pour émuler une fonction. Par exemple l'ajout d'un e fonction "JMA @operande" qui sauterait à l'addresse de la valeur contenu à l'addresse indiquée en argument permettrat de faire fonctionner une pile d'addresse de retour pour intégrer le mécanisme de fonction.
 3:
 	-gérer finement les erreurs => partiellement géré
 4:

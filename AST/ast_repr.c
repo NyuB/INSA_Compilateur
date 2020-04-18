@@ -62,7 +62,8 @@ void ast_display(ast * tree){
 	noderepr * new;
 	q_add(q,item);
 	q_add(q,newline);
-	printf("Starting display\n");
+	printf("Starting AST display\n");
+	printf("Format : [ID | Type | FatherID]\n");
 	while(q->head != NULL){
 		//q_display(q);
 		item = q->head;

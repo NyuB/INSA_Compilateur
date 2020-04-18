@@ -4,6 +4,7 @@ scope * scp_empty_contained(scope * container){
 	scope * res = (scope *)malloc(1*sizeof(scope));
 	res->namespace = nli_empty();
 	res->container = container;
+
 	return res;
 }
 
