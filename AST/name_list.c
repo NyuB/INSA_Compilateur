@@ -77,4 +77,27 @@ void nli_display(name_list * list){
 	printf("\n");
 }
 
+void nli_info_free(name_info * info){
+	free(info->name);
+	free(info);
+}
+
+void cell_free(name_cell * cell){
+	free(cell->info);
+	free(cell);
+}
+
+
+
+void nli_free(name_list * list){
+	name_cell * cursor = list->start;
+	name_cell * aux;
+	while(cursor != NULL){
+		aux = cursor->suiv;
+		free(cursor);
+		cursor = aux;
+	}
+	free(list);
+}
+
 

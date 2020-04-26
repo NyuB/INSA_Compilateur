@@ -34,7 +34,11 @@ void nli_append(name_list * list, char * name, int size, int addr, var_status st
 
 void nli_prepend(name_list * list, char * name, int size, int addr, var_status status);//Ajoute le nom en début de liste. Attention pas de vérification d'unicité
 
-void nli_display(name_list * list);//Printf la liste sous un format lisible dans la console
+void nli_display(name_list * list);//Affiche la liste sous un format lisible dans la console
+
+void nli_info_free(name_info * info);//Libère la mémoire allouée à ces informations
+
+void nli_free(name_list * list);//Libère la mémoire allouée à cette liste et ses éléments
 
 void myncpy(char * dest,char * src,int n);//idem à strcpy pour les char * non constant
 

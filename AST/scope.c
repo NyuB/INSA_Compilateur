@@ -24,6 +24,9 @@ name_info * scp_contains(scope * scp, char * name){
 	}
 	return NOT_FOUND;
 }
+name_info * scp_contains_floor(scope * scp, char * name){
+	return nli_contains(scp->namespace, name);
+}
 
 void scp_add(scope * scp, char * name, int size, int addr, var_status status){
 	nli_append(scp->namespace, name, size, addr, status);
@@ -38,5 +41,10 @@ void scp_display(scope * scp){
 		cursor = cursor->container;
 		index ++;
 	}
+}
+
+void scp_free(scope * scp){
+	nli_free(scp->namespace);
+	free(scp);
 }
 

@@ -194,6 +194,14 @@ ast * ast_new(ast_node * root){
 
 //Fonctions d'interprétation de l'AST
 
+/*Structure d'interprétation de l'AST (génération es instructions, affectation mémoire, namespace, etc)
+var_list (liste vide) => le namespace construit lors de l'exploration
+left_addr_min (0) => prochaine addresse dispo en écriture de l'espace de variable
+right_addr_max (taille_memoire) => dernière addresse écrite de la stack
+line (0) => numéro de la prochaine instruction assembleur
+instructions (liste vide) instructions générées
+file (constant) => fichier assembleur où écrire les instructions au cours de l'exploration
+*/
 typedef struct build_data{
 	scope * var_list;
 	int left_addr_min;
@@ -286,7 +294,7 @@ void ast_if_build(ast_node * node,build_data * datas){
 		datas->var_list = child;
 		ast_node_build(false_body,datas);
 		datas->var_list = child->container;
-		free(child);
+		scp_free(child);
 
 		
 		//On connaît maintenant la taille du bloc true et false, on insère les instructions JMP et JFM
@@ -319,7 +327,7 @@ void ast_while_build(ast_node * node, build_data * datas){
 	datas->var_list = child;
 	ast_node_build(body,datas);
 	datas->var_list = child->container;
-	free(child);
+	scp_free(child);
 
 	ast_write("JMP", expr_line, -1, -1, datas);
 	ast_write_at("JMF", addr, datas->line, -1, datas, jmf_line);
@@ -334,10 +342,10 @@ void ast_print_build(ast_node * node, build_data * datas){
 
 //Declaration et affectation d'une constante
 void ast_const_build(ast_node * node, build_data * datas){
-	name_info * info = scp_contains(datas->var_list,(char *)(node->content));
+	name_info * info = scp_contains_floor(datas->var_list,(char *)(node->content));
 	int rightAddr;
 	int stack_shift=0;
-	if(info != NOT_FOUND){//Vérifier que ce nom n'est pas déjà déclaré
+	if(info != NOT_FOUND){//Vérifier que ce nom n'est pas déjà déclaré dans ce scope
 		printf("Semantic error : variable [ %s ] is already declared\n",(char *)(node->content));
 		//TODO lever une erreur et quitter?
 	}
@@ -399,10 +407,6 @@ void ast_aff_build(ast_node * node, build_data * datas){
 paramètre (valeur initiale) => description
 
 node (root) => le noeud à explorer
-var_list (liste vide) => le namespace construit lors de l'exploration
-left_addr_min (0) => prochaine addresse dispo en écriture de l'espace de variable
-right_addr_max (taille_memoire) => dernière addresse écrite de la stack
-file (constant) => fichier assembleur où écrire les instructions au cours de l'exploration
 
 */
 void ast_node_build(ast_node * node, build_data * datas){
@@ -432,7 +436,7 @@ void ast_node_build(ast_node * node, build_data * datas){
 			printf("[DEBUG]AFFECT\n");	
 			break;
 		case AST_CODE_DCL:
-			if(scp_contains(datas->var_list,(char*)(node->content)) != NOT_FOUND){//On vérifie que ce nom n'est pas déjà déclaré
+			if(scp_contains_floor(datas->var_list,(char*)(node->content)) != NOT_FOUND){//On vérifie que ce nom n'est pas déjà déclaré dans ce scope
 				printf("Semantic error : [ %s ] is already declared\n",(char*)(node->content));
 				//TODO lever une erreur et quitter?
 			}
