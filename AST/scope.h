@@ -6,7 +6,7 @@
 
 typedef struct scope{
 	name_list * namespace;
-	struct scope * container;
+	struct scope * container;//Le scope parent ou NULL
 }scope;
 
 scope * scp_empty_root();//Retourne un scope vide sans père

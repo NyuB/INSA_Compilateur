@@ -7,18 +7,19 @@
 
 typedef struct name_list name_list;
 
-typedef enum name_status{
+typedef enum var_status{//Informations supplémentaire, par exemple si la variable est une constante, s elle a été initialisée, etc
 	NS_CONSTANT,
 	NS_MUTABLE,
 	NS_ASSIGNED,
 	NS_FUNCTION,
+	NS_POINTER,
 	NS_NOTFOUND
 }var_status;
 
 typedef struct name_info {
 	char * name;
-	int size;
-	int addr;
+	int size;//Pour l'instant inutilisé, on ne gère que des entiers donc 1 seule taille de variable
+	int addr;//Addresse dans le tas
 	var_status status;
 }name_info;
 

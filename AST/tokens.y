@@ -22,13 +22,13 @@
 %left T_SUB
 %left T_MUL T_DIV
 
-%token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA T_WHILE T_IF T_ELSE
+%token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_REF T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA T_WHILE T_IF T_ELSE
 
 
 %union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s;}
 %type <s> T_NAME 
-%type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR CMD PRINT BLOC IF WHILE assignement declaration declare_assignement  
-%type <i>  T_ADD T_SUB T_MUL T_DIV T_INT T_IF T_ELSE T_WHILE 
+%type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR REF UNREF CMD PRINT BLOC IF WHILE assignement declaration declare_assignement  
+%type <i>  T_ADD T_SUB T_MUL T_DIV T_INT T_IF T_ELSE T_WHILE STARS
 %type <noli> BODY T_NAMELIST 
 %%
 
@@ -57,6 +57,14 @@ CMD : declare_assignement
     |IF
     |WHILE
     ;
+REF : T_REF T_NAME {printf("REF\n");$$ = ast_ref($2);}
+	;
+
+UNREF : STARS T_NAME {printf("UNREF\n");$$=ast_unref($2,$1);}
+	;
+STARS : T_MUL {$$=1;}
+	|T_MUL STARS {$$=1+$2;}
+	;
 
 EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variable
     |T_POPEN EXPR T_PCLOSE {$$ = $2;} //Propagation du noeud
@@ -67,6 +75,8 @@ EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variabl
     |EXPR T_DIV EXPR {printf("EXPR\n"); $$ = ast_math(ASM_DIV, $1, $3);}//Noeud opération
     |T_SUB EXPR {printf("MIN-EXPR\n");$$ = ast_math(ASM_SUB,ast_int(0),$2);}//Construction d'une négation par 0-expr
     |T_ADD EXPR {printf("PLUS-EXPR\n");$$ = $2;}
+    |REF {$$ = $1;}
+    |UNREF {$$=$1;}
     ;
 
 

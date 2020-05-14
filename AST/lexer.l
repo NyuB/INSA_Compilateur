@@ -18,6 +18,7 @@ SUB \-
 MUL \*
 DIV \/
 EQ =
+REF &
 POPEN [(]
 PCLOSE [)]
 AOPEN \{
@@ -45,6 +46,7 @@ WHILE while
 {MUL} {printf(" t_mul ");return T_MUL;}
 {DIV} {printf(" t_div ");return T_DIV;}
 {EQ} {printf(" t_eq ");return T_EQ;}
+{REF} {printf("t_ref");return T_REF;}
 {POPEN} {printf(" t_popen ");return T_POPEN;}
 {PCLOSE} {printf(" t_pclose ");return T_PCLOSE;}
 {AOPEN} {printf(" t_aopen ");return T_AOPEN;}

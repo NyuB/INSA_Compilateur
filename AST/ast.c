@@ -185,6 +185,27 @@ ast_node * ast_int(int integer){
 	return ast_new_node(AST_CODE_INT, content,0,NULL);
 }
 
+ast_node * ast_ref(char * name){//référence addresse d'une variable nommée, exemple &a
+	int l = strlen(name)+1;
+	char * content = (char *)malloc(l*sizeof(char));
+	myncpy(content,name,l);
+	return ast_new_node(AST_CODE_REF,content,0,NULL);
+}
+
+typedef struct int_str{
+	int i;
+	char * s;
+}int_str;
+
+ast_node * ast_unref(char * name, int level){
+	int_str * content = (int_str *)malloc(1*sizeof(int_str));
+	content->i = level;
+	int l = strlen(name)+1;
+	content->s = (char *)malloc(l*sizeof(char));
+	myncpy(content->s,name,l);
+	return ast_new_node(AST_CODE_UNREF,content,0,NULL);
+}
+
 //Fonctions de construction de l'AST
 ast * ast_new(ast_node * root){
 	ast * tree = (ast *)malloc(1*sizeof(ast));
@@ -374,12 +395,37 @@ void ast_math_build(char * op,ast_node * node, build_data * datas){
 	datas->right_addr_max = addr;
 }
 
+void ast_ref_build(ast_node * node, build_data * datas){
+	name_info * info = scp_contains(datas->var_list,(char*)(node->content));//On récupère l'index de la variable dans la liste des noms déclarés
+	if(info == NOT_FOUND){
+		printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(node->content));
+	}
+	else{
+		datas->right_addr_max--;
+		ast_write("AFC",datas->right_addr_max,info->addr,-1,datas);
+	}
+}
+void ast_unref_build(ast_node * node, build_data * datas){
+	int_str * istr = (int_str *)(node->content);
+	name_info * info = scp_contains(datas->var_list,istr->s);//On récupère l'index de la variable dans la liste des noms déclarés
+	if(info == NOT_FOUND){
+		printf("Semantic error : variable [ %s ] referenced before declaration\n",istr->s);
+	}
+	else{
+		datas->right_addr_max--;
+		ast_write("CPA",datas->right_addr_max,info->addr,-1,datas);
+		for(int i =0;i<istr->i-1;i++){
+			ast_write("CPA",datas->right_addr_max,datas->right_addr_max,-1,datas);
+		}
+	}
+}
+
+
+
 void ast_int_build(ast_node * node, build_data * datas){
 	datas->right_addr_max--;
 	ast_write( "AFC", datas->right_addr_max,*((int*)(node->content)),-1,datas);
 }
-
-
 
 void ast_aff_build(ast_node * node, build_data * datas){
 	ast_node_cell * left = node->childs->start;
@@ -411,8 +457,8 @@ node (root) => le noeud à explorer
 */
 void ast_node_build(ast_node * node, build_data * datas){
 	if(datas->left_addr_min > datas->right_addr_max){//On vérifie que l'espace des variables ne dépasse pas dans la pile
-		printf("Specification error : expression evaluation will require too much stack\n");
-		printf("Allow more stack or split/condense nested expressions\n");
+		printf("Specifications error : programm compilation will require too much memory space\n");
+		printf("Allow more memory, reduce number of variables or split/condense nested expressions\n");
 	}
 	switch(node->code){
 		case AST_CODE_ADD:
@@ -466,6 +512,12 @@ void ast_node_build(ast_node * node, build_data * datas){
 		case AST_CODE_PRINT:
 			ast_print_build(node,datas);
 			break;
+		case AST_CODE_UNREF:
+			ast_unref_build(node,datas);
+			break;
+		case AST_CODE_REF:
+			ast_ref_build(node,datas);
+			break;
 		case AST_CODE_VAR:
 			printf("[DEBUG]Un noeud AST_CODE_VAR(référence à une variable) ne devrait pas être traité dans le switch...\n");
 			//N'est pas supposé arrivé
@@ -475,8 +527,8 @@ void ast_node_build(ast_node * node, build_data * datas){
 	}
 	
 	if(datas->left_addr_min > datas->right_addr_max){//On vérifie à nouveau qu'il n'y a pas eu collision entre espace variable et stack
-		printf("Specifications error : expression evaluation will require too much stack\n");
-		printf("Allow more stack or split/condense nested expressions\n");
+		printf("Specifications error : programm compilation will require too much memory space\n");
+		printf("Allow more memory, reduce number of variables or split/condense nested expressions\n");
 	}
 }
 
