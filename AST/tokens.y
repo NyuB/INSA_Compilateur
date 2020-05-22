@@ -39,9 +39,10 @@ start : T_MAIN T_POPEN T_PCLOSE BLOC {printf("MAIN\n");tree = ast_new($4);}
 BLOC : T_AOPEN BODY T_ACLOSE {printf("{BODY}");$$=ast_node_seq($2);}
 	;
 
-BODY :
+BODY : {$$ = ast_node_list_empty();}
     |CMD {ast_node_list * l = ast_node_list_empty();ast_node_list_append(l,$1);$$=l;}
     |CMD T_SEP BODY {ast_node_list * l = $3; ast_node_list_prepend(l,$1);$$=l;}
+    |T_SEP BODY {$$ = $2;}
     ;
 
 IF : T_IF T_POPEN EXPR T_PCLOSE BLOC { $$ = ast_node_if($3,$5,NULL);}
