@@ -23,6 +23,7 @@
 #define AST_CODE_PRINT 13
 #define AST_CODE_REF 14
 #define AST_CODE_UNREF 15
+#define AST_CODE_CONST_VOID 16
 
 #define AST_SEMANTIC_ERROR -2
 #define AST_STACK_REQ_ERROR -3
@@ -55,7 +56,8 @@ typedef struct ast_node_list{
 //Fonctions de génération des noeuds (à exploiter dans le yacc pour construire l'AST avant interprétation)
 ast_node * ast_new_node(int code, void * content,int nb_childs,ast_node_list * childs); //fonction générique de création de noeud, a priori ne devrait pas être utilisée telle quelle
 ast_node * ast_declare(char * name);// Déclaration de variable, exemple : 'int a'
-ast_node * ast_declare_const(char * name, ast_node * expr);//declaration et affectation de constante
+ast_node * ast_declare_const_void(char * name);// Déclaration de constante sans initialisation, exemple : 'const int a'
+ast_node * ast_declare_aff_const(char * name, ast_node * expr);//declaration et affectation de constante
 ast_node * ast_math(int op, ast_node * left,ast_node * right);//expression à deux opérandes
 ast_node * ast_affect(ast_node * a,ast_node * b);// name = expr
 ast_node * ast_var(char * name);//réference à une variable nommée, exemple a

@@ -138,6 +138,10 @@ int exec(int ip) {
     case PRI:
         printf("PRI @%d[%d]\n", arg1, memory[arg1]);
         break;
+    case CPA:
+    	printf("CPA @%d = @@%d[%d]\n", arg1, arg2, memory[memory[arg2]]);
+    	memory[arg1] = memory[memory[arg2]];
+    	break;
     default:
         fprintf(stderr, "ERROR run : unknown inst.\n");
     }

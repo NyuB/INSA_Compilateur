@@ -126,8 +126,14 @@ ast_node * ast_declare(char * name){
 	myncpy(content,name,l);
 	return ast_new_node(AST_CODE_DCL,content,0,NULL);
 }
+ast_node * ast_declare_const_void(char * name){// Déclaration de constante sans initialisation, exemple : 'const int a'
+	int l = strlen(name)+1;
+	char * content = (char *)malloc(l*sizeof(char));
+	myncpy(content,name,l);
+	return ast_new_node(AST_CODE_CONST_VOID,content,0,NULL);
+}
 //Retourne un noeud de code AST_CODE_CON ayant pour contenu une copie de la string argument et possédant un noeud fils expression
-ast_node * ast_declare_const(char * name, ast_node * expr){
+ast_node * ast_declare_aff_const(char * name, ast_node * expr){
 	int l = strlen(name)+1;
 	char * content = (char *)malloc(l*sizeof(char));
 	myncpy(content,name,l);
@@ -362,7 +368,7 @@ void ast_print_build(ast_node * node, build_data * datas){
 }
 
 //Declaration et affectation d'une constante
-void ast_const_build(ast_node * node, build_data * datas){
+void ast_const_aff_build(ast_node * node, build_data * datas){
 	name_info * info = scp_contains_floor(datas->var_list,(char *)(node->content));
 	int rightAddr;
 	int stack_shift=0;
@@ -373,7 +379,7 @@ void ast_const_build(ast_node * node, build_data * datas){
 	else{
 		ast_node * right = node->childs->start->node;
 		rightAddr = addr_resolve(right, datas, &stack_shift);
-		scp_add(datas->var_list, (char *)(node->content), AST_TYPESIZE_INT, datas->left_addr_min, NS_CONSTANT);
+		scp_add(datas->var_list, (char *)(node->content), AST_TYPESIZE_INT, datas->left_addr_min, NS_CONSTANT_ASSIGNED);
 		ast_write("COP", datas->left_addr_min, rightAddr, -1,datas);
 		datas->left_addr_min ++;
 		datas->right_addr_max += stack_shift;
@@ -437,13 +443,18 @@ void ast_aff_build(ast_node * node, build_data * datas){
 	if(info == NOT_FOUND){
 		printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(left->node->content));
 	}
-	else if(info->status == NS_CONSTANT){
-		printf("Semantic error : constant [ %s ] can't be affected outside declaration\n",(char *)(left->node->content));
+	else if(info->status == NS_CONSTANT_ASSIGNED){
+		printf("Semantic error : constant [ %s ] value cannot be reaffected\n",(char *)(left->node->content));
 	}
 	else{
 		leftAddr = info->addr;
 	}
-	info -> status = NS_ASSIGNED;
+	if(info->status == NS_MUTABLE){
+		info -> status = NS_ASSIGNED;
+	}
+	else if(info->status == NS_CONSTANT){
+		info->status = NS_CONSTANT_ASSIGNED;
+	}
 	rightAddr = addr_resolve(right->node, datas, &stack_shift);
 	datas->right_addr_max+=stack_shift;
 	ast_write("COP",leftAddr,rightAddr,-1,datas);
@@ -488,10 +499,19 @@ void ast_node_build(ast_node * node, build_data * datas){
 			}
 			scp_add(datas->var_list,(char*)(node->content), AST_TYPESIZE_INT, datas->left_addr_min, NS_MUTABLE);//On ajoute ce nom à la liste des noms déclarés
 			datas->left_addr_min++;//On décale l'index "d'écriture" de l'espace des variables déclarées
-			printf("[DEBUG]DECLARE %s %d\n",(char *)(node->content),datas->left_addr_min);
+			printf("[DEBUG]DECLARE %s\n",(char *)(node->content));
+			break;
+		case AST_CODE_CONST_VOID:
+			if(scp_contains_floor(datas->var_list,(char*)(node->content)) != NOT_FOUND){//On vérifie que ce nom n'est pas déjà déclaré dans ce scope
+				printf("Semantic error : [ %s ] is already declared\n",(char*)(node->content));
+				//TODO lever une erreur et quitter?
+			}
+			scp_add(datas->var_list,(char*)(node->content), AST_TYPESIZE_INT, datas->left_addr_min, NS_CONSTANT);//On ajoute ce nom à la liste des noms déclarés
+			datas->left_addr_min++;//On décale l'index "d'écriture" de l'espace des variables déclarées
+			printf("[DEBUG]DECLARE CONST %s\n",(char *)(node->content));
 			break;
 		case AST_CODE_CON:
-			ast_const_build(node,datas);
+			ast_const_aff_build(node,datas);
 			printf("[DEBUG]CONST %s %d\n",(char *)(node->content),datas->left_addr_min);
 			break;
 		case AST_CODE_SEQ:

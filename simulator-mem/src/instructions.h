@@ -13,6 +13,7 @@
 #define SUP 10
 #define EQU 11
 #define PRI 12
+#define CPA 13
 
 #define MAX_INSTRUCTIONS_SIZE 256
 #define MAX_MEMORY_SIZE 256

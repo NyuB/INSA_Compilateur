@@ -29,7 +29,7 @@
 %type <s> T_NAME 
 %type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR REF UNREF CMD PRINT BLOC IF WHILE assignement declaration declare_assignement  
 %type <i>  T_ADD T_SUB T_MUL T_DIV T_INT T_IF T_ELSE T_WHILE STARS
-%type <noli> BODY T_NAMELIST 
+%type <noli> BODY NAMELIST 
 %%
 
 start : T_MAIN T_POPEN T_PCLOSE BLOC {printf("MAIN\n");tree = ast_new($4);}
@@ -83,8 +83,8 @@ EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variabl
 PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE {$$=ast_node_print($3);}
       ;
 
-T_NAMELIST : T_NAME {ast_node_list * l = ast_node_list_empty(); ast_node_list_append(l, ast_declare($1));$$ = l; }
-           |T_NAME T_COMMA T_NAMELIST {ast_node_list * l = $3; ast_node_list_prepend(l, ast_declare($1));$$ = l; }
+NAMELIST : T_NAME {ast_node_list * l = ast_node_list_empty(); ast_node_list_append(l, ast_declare($1));$$ = l; }
+           |T_NAME T_COMMA NAMELIST {ast_node_list * l = $3; ast_node_list_prepend(l, ast_declare($1));$$ = l; }
            ;
 
 declare_assignement : T_VAR T_NAME T_EQ EXPR{
@@ -97,12 +97,10 @@ declare_assignement : T_VAR T_NAME T_EQ EXPR{
 		ast_node_list_append(li,aff);
 		$$ = ast_node_seq(li);
 		}
-		| T_CONST T_NAME T_EQ EXPR {$$ = ast_declare_const($2,$4);}
+		| T_CONST T_VAR T_NAME T_EQ EXPR {$$ = ast_declare_aff_const($3,$5);}
 		;
-declaration : T_VAR T_NAMELIST
-			{
-			printf("DECLARATION"); $$ = ast_node_seq($2);
-			}
+declaration : T_VAR NAMELIST {printf("DECLARATION"); $$ = ast_node_seq($2);}
+			|T_CONST T_VAR T_NAME {printf("CONST DECLARATION");$$= ast_declare_const_void($3);}
 	;
 assignement : T_NAME T_EQ EXPR {printf("ASSIGN_NAME");$$ = ast_affect(ast_var($1),$3); }
 

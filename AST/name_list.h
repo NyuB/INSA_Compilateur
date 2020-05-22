@@ -9,6 +9,7 @@ typedef struct name_list name_list;
 
 typedef enum var_status{//Informations supplémentaire, par exemple si la variable est une constante, s elle a été initialisée, etc
 	NS_CONSTANT,
+	NS_CONSTANT_ASSIGNED,
 	NS_MUTABLE,
 	NS_ASSIGNED,
 	NS_FUNCTION,
