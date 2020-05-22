@@ -76,7 +76,7 @@ EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variabl
     |T_SUB EXPR {printf("MIN-EXPR\n");$$ = ast_math(ASM_SUB,ast_int(0),$2);}//Construction d'une négation par 0-expr
     |T_ADD EXPR {printf("PLUS-EXPR\n");$$ = $2;}
     |REF {$$ = $1;}
-    |UNREF {$$=$1;}
+    |UNREF {$$ = $1;}
     ;
 
 
@@ -85,19 +85,29 @@ PRINT : T_PRINTF T_POPEN EXPR T_PCLOSE {$$=ast_node_print($3);}
 
 NAMELIST : T_NAME {ast_node_list * l = ast_node_list_empty(); ast_node_list_append(l, ast_declare($1));$$ = l; }
            |T_NAME T_COMMA NAMELIST {ast_node_list * l = $3; ast_node_list_prepend(l, ast_declare($1));$$ = l; }
+           |T_NAME T_EQ EXPR {
+           		ast_node * dcl = ast_declare($1);
+				ast_node * var = ast_var($1);
+				ast_node * aff = ast_affect(var,$3);
+				ast_node_list * li = ast_node_list_empty();
+				ast_node_list_append(li,dcl);
+				ast_node_list_append(li,aff);
+				$$ = li;
+
+           	}
+           |T_NAME T_EQ EXPR T_COMMA NAMELIST {
+             	ast_node * dcl = ast_declare($1);
+				ast_node * var = ast_var($1);
+				ast_node * aff = ast_affect(var,$3);
+				ast_node_list * li = ast_node_list_empty();
+				ast_node_list_append(li,dcl);
+				ast_node_list_append(li,aff);
+				ast_node_list_prepend($5,ast_node_seq(li));
+				$$ = $5;
+           	}
            ;
 
-declare_assignement : T_VAR T_NAME T_EQ EXPR{
-		printf("DCLR-ASSIGN\n");
-		ast_node * dcl = ast_declare($2);
-		ast_node * var = ast_var($2);
-		ast_node * aff = ast_affect(var,$4);
-		ast_node_list * li = ast_node_list_empty();
-		ast_node_list_append(li,dcl);
-		ast_node_list_append(li,aff);
-		$$ = ast_node_seq(li);
-		}
-		| T_CONST T_VAR T_NAME T_EQ EXPR {$$ = ast_declare_aff_const($3,$5);}
+declare_assignement : T_CONST T_VAR T_NAME T_EQ EXPR {$$ = ast_declare_aff_const($3,$5);}
 		;
 declaration : T_VAR NAMELIST {printf("DECLARATION"); $$ = ast_node_seq($2);}
 			|T_CONST T_VAR T_NAME {printf("CONST DECLARATION");$$= ast_declare_const_void($3);}
