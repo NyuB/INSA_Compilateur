@@ -5,7 +5,7 @@
 
 - *proto* (_ancienne version_) : les premières implémentations de lexer/compilateur exécutant l'écriture assembleur dans le fichier yacc, conservés pour archive
 - *AST* (_version courante_) : le projet après bifurcation "moins de yacc plus de c", on utilise une structure d'arbre(voir le fichier ast.h/c) construite dans le yacc puis une fonction d'interprétation qui écrit le fichier assembleur une fois l'analyse syntaxique terminée.
-- *simulator-mem* : l'interpréteur assembleur fourni, légèrement modifié pour notre 
+- *simulator-mem* : l'interpréteur assembleur fourni, légèrement modifié pour notre format assembleur(nombre d'arguments constant, commande CPA) 
 
 # Build
 
@@ -24,7 +24,7 @@ make CONFIG=win
 ## Compilateur :
 
 ### Appel
-Par défaut, le compilateur s'éxécute en considérant uen taille mémoire de 64 bytes. Un argument peut être ajouté lors de l'appel pour faire varier ce paramètre.
+Par défaut, le compilateur s'éxécute en considérant une taille mémoire de 64 bytes. Un argument peut être ajouté lors de l'appel pour faire varier ce paramètre.
 
 Linux
 ```
