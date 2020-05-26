@@ -9,13 +9,13 @@
 
 # Build
 
-Les sources du dossier AST génèrent un exécutable comp.exe, celles du dossier simulator-mem un exécutable simulator.exe
+Les sources du dossier AST génèrent un exécutable __comp.exe__, celles du dossier simulator-mem un exécutable __simulator.exe__
 Les deux projets se compilent via un makefile
-Sous Linux :
+Sous Linux (via lex et yacc) :
 ```
 make
 ```
-Sous Windows :
+Sous Windows (via flex et bison) :
 ```
 make CONFIG=win
 ```
@@ -39,7 +39,7 @@ more source.c | comp
 more source.c | comp mem_size
 ```
 ### Assembleur généré
-Si l'analyse syntaxique est un succès, un fichier __assembly.asm__ sera généré, compilation du fichier source en lagnage assembleur orienté mémoire
+Si l'analyse syntaxique est un succès, un fichier __assembly.asm__ sera généré, compilation du fichier source en langage assembleur orienté mémoire
 ### Affichage
 Si l'analyse syntaxique est un succès, le programme affichera en fin d'exécution une représentation concise de l'AST du fichier source, un niveau par ligne.
 ```
