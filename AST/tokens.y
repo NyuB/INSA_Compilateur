@@ -122,10 +122,11 @@ int yyerror(char *msg){
     return 1;
 }
 
-int main(void){
+int main(int argc, char ** argv){
     const char * filename = "./assembly.asm";
+    int size = (argc>1)?atoi(argv[1]):64;
     yyparse();
-    ast_build(tree,filename,64);
+    ast_build(tree,filename,size);
     ast_display(tree);
     return 0;
 }

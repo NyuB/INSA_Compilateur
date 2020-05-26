@@ -363,7 +363,7 @@ void ast_while_build(ast_node * node, build_data * datas){
 void ast_print_build(ast_node * node, build_data * datas){
 	int stack_shift = 0;
 	int addr = addr_resolve(node->childs->start->node,datas,&stack_shift);
-	datas->right_addr_max++;
+	datas->right_addr_max+=stack_shift;
 	ast_write("PRI", addr, -1, -1, datas);
 }
 
@@ -402,7 +402,7 @@ void ast_math_build(char * op,ast_node * node, build_data * datas){
 }
 
 void ast_ref_build(ast_node * node, build_data * datas){
-	name_info * info = scp_contains(datas->var_list,(char*)(node->content));//On récupère l'index de la variable dans la liste des noms déclarés
+	name_info * info = scp_contains(datas->var_list,(char*)(node->content));//On récupère la représentation de la variable dans la liste des noms déclarés
 	if(info == NOT_FOUND){
 		printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(node->content));
 	}
@@ -411,9 +411,10 @@ void ast_ref_build(ast_node * node, build_data * datas){
 		ast_write("AFC",datas->right_addr_max,info->addr,-1,datas);
 	}
 }
+
 void ast_unref_build(ast_node * node, build_data * datas){
 	int_str * istr = (int_str *)(node->content);
-	name_info * info = scp_contains(datas->var_list,istr->s);//On récupère l'index de la variable dans la liste des noms déclarés
+	name_info * info = scp_contains(datas->var_list,istr->s);//On récupère la représentation de la variable dans la liste des noms déclarés
 	if(info == NOT_FOUND){
 		printf("Semantic error : variable [ %s ] referenced before declaration\n",istr->s);
 	}
@@ -439,7 +440,7 @@ void ast_aff_build(ast_node * node, build_data * datas){
 	int rightAddr;
 	int stack_shift = 0;
 	int leftAddr;
-	name_info * info = scp_contains(datas->var_list,(char*)(left->node->content));//On récupère l'index de la variable dans la liste des noms déclarés
+	name_info * info = scp_contains(datas->var_list,(char*)(left->node->content));//On récupère la représentation de la variable dans la liste des noms déclarés
 	if(info == NOT_FOUND){
 		printf("Semantic error : variable [ %s ] referenced before declaration\n",(char *)(left->node->content));
 	}
