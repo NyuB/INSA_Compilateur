@@ -3,22 +3,22 @@
 
 # Structure :
 
-- Dossier proto (_ancienne version_) : les premières implémentations de lexer/compilateur exécutant l'écriture assembleur dans le fichier yacc, conservés pour archive
-- Dossier AST (_version courante_) : le projet après bifurcation "moins de yacc plus de c", on utilise une structure d'arbre(voir le fichier ast.h/c) construite dans le yacc puis une fonction d'interprétation qui écrit le fichier assembleur une fois l'analyse syntaxique terminée.
-- simulator-mem : l'interpréteur assembleur fourni, légèrement modifié pour notre 
+- *proto* (_ancienne version_) : les premières implémentations de lexer/compilateur exécutant l'écriture assembleur dans le fichier yacc, conservés pour archive
+- *AST* (_version courante_) : le projet après bifurcation "moins de yacc plus de c", on utilise une structure d'arbre(voir le fichier ast.h/c) construite dans le yacc puis une fonction d'interprétation qui écrit le fichier assembleur une fois l'analyse syntaxique terminée.
+- *simulator-mem* : l'interpréteur assembleur fourni, légèrement modifié pour notre 
 
 # Build
 
 Les sources du dossier AST génèrent un exécutable comp.exe, celles du dossier simulator-mem un exécutable simulator.exe
 Les deux projets se compilent via un makefile
 Sous Linux :
-'''
+```
 make
-'''
+```
 Sous Windows :
-'''
+```
 make CONFIG=win
-'''
+```
 
 # Utilisation
 ## Compilateur :
