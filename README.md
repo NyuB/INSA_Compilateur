@@ -3,9 +3,9 @@
 
 # Structure :
 
-- *proto* (_ancienne version_) : les premières implémentations de lexer/compilateur exécutant l'écriture assembleur dans le fichier yacc, conservés pour archive
-- *AST* (_version courante_) : le projet après bifurcation "moins de yacc plus de c", on utilise une structure d'arbre(voir le fichier ast.h/c) construite dans le yacc puis une fonction d'interprétation qui écrit le fichier assembleur une fois l'analyse syntaxique terminée.
-- *simulator-mem* : l'interpréteur assembleur fourni, légèrement modifié pour notre format assembleur(nombre d'arguments constant, commande CPA) 
+- __proto__ (_ancienne version_) : les premières implémentations de lexer/compilateur exécutant l'écriture assembleur dans le fichier yacc, conservés pour archive
+- __AST__ (_version courante_) : le projet après bifurcation "moins de yacc plus de c", on utilise une structure d'arbre(voir le fichier ast.h/c) construite dans le yacc puis une fonction d'interprétation qui écrit le fichier assembleur une fois l'analyse syntaxique terminée.
+- __simulator-mem__ : l'interpréteur assembleur fourni, légèrement modifié pour notre format assembleur(nombre d'arguments constant, commande CPA) 
 
 # Build
 
@@ -38,7 +38,8 @@ Windows
 more source.c | comp
 more source.c | comp mem_size
 ```
-
+### Assembleur généré
+Si l'analyse syntaxique est un succès, un fichier __assembly.asm__ sera généré, compilation du fichier source en lagnage assembleur orienté mémoire
 ### Affichage
 Si l'analyse syntaxique est un succès, le programme affichera en fin d'exécution une représentation concise de l'AST du fichier source, un niveau par ligne.
 ```
