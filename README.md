@@ -27,20 +27,29 @@ make CONFIG=win
 Par défaut, le compilateur s'éxécute en considérant uen taille mémoire de 64 bytes. Un argument peut être ajouté lors de l'appel pour faire varier ce paramètre.
 
 Linux
-'''
+```
 ./source.c | ./comp
 Ou
 ./source.c | ./comp mem_size
-'''
+```
 
 Windows
-'''
+```
 more source.c | comp
 more source.c | comp mem_size
-'''
+```
 
 ### Affichage
 Si l'analyse syntaxique est un succès, le programme affichera en fin d'exécution une représentation concise de l'AST du fichier source, un niveau par ligne.
+```
+Starting AST display
+Format : [ID | Type | FatherID]
+   [0|8|-1]
+   [1|8|0]   [2|8|0]   [3|13|0]   [4|13|0]
+   [5|8|1]   [6|8|1]   [7|6|1]   [8|5|1]   [9|6|2]   [10|5|2]   [11|7|3]   [12|7|4]
+   [13|6|5]   [14|5|5]   [15|6|6]   [16|5|6]   [17|7|8]   [18|10|8]   [19|7|10]   [20|10|10]
+   [21|7|14]   [22|10|14]   [23|7|16]   [24|10|16]
+```
 Sur cet affichage un noeud est représenté par trois nombres : son identifiant unique, son type (décrit dans le fichier ast.h), et l'identifiant de son noeud père.
 
 ## Simulateur
