@@ -43,6 +43,11 @@ void scp_display(scope * scp){
 	}
 }
 
+void scp_warn_and_free(scope * scp){
+	nli_warn(scp->namespace);
+	scp_free(scp);
+}
+
 void scp_free(scope * scp){
 	nli_free(scp->namespace);
 	free(scp);

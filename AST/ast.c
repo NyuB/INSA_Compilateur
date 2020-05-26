@@ -310,7 +310,7 @@ void ast_if_build(ast_node * node,build_data * datas){
 	datas->var_list=child;
 	ast_node_build(true_body,datas);
 	datas->var_list = child->container;
-	free(child);
+	scp_warn_and_free(child);
 
 	if(false_body !=NULL){
 		int incond = datas->line;//On conserve le numéro d'instruction où écrire le JMP en attendant de savoir où sauter
@@ -321,7 +321,7 @@ void ast_if_build(ast_node * node,build_data * datas){
 		datas->var_list = child;
 		ast_node_build(false_body,datas);
 		datas->var_list = child->container;
-		scp_free(child);
+		scp_warn_and_free(child);
 
 		
 		//On connaît maintenant la taille du bloc true et false, on insère les instructions JMP et JFM
@@ -354,7 +354,7 @@ void ast_while_build(ast_node * node, build_data * datas){
 	datas->var_list = child;
 	ast_node_build(body,datas);
 	datas->var_list = child->container;
-	scp_free(child);
+	scp_warn_and_free(child);
 
 	ast_write("JMP", expr_line, -1, -1, datas);
 	ast_write_at("JMF", addr, datas->line, -1, datas, jmf_line);
@@ -565,6 +565,7 @@ void ast_build(ast * tree,const char * filename,int mem_size){
 	data->line = 0;
 	data->instructions = asm_instru_list_empty();
 	ast_node_build(tree->root,data);//Lancement de la récursion
+	scp_warn_and_free(data->var_list);//Analyse et libération du scope main
 	asm_write_all(data);
 	fclose(file);
 }

@@ -21,5 +21,7 @@ void scp_add(scope * scp, char * name, int size,int addr, var_status status);//A
 
 void scp_display(scope * scp);//Affiche le scope puis ses contenants récursivement
 
+void scp_warn_and_free(scope * scp);//Analyse un scope avant sa destruction et lève des warnings si nécessaire
+
 void scp_free(scope * scp);//Libère la mémoire allouée à ce scope
 #endif

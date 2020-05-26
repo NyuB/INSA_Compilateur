@@ -77,6 +77,16 @@ void nli_display(name_list * list){
 	printf("\n");
 }
 
+void nli_warn(name_list * list){
+	name_cell * aux = list->start;
+	while(aux!=NULL){
+		if(aux->info->status == NS_MUTABLE){
+			printf("Warning : [%s] declared but never assigned\n",aux->info->name);
+		}
+		aux=aux->suiv;
+	}
+}
+
 void nli_info_free(name_info * info){
 	free(info->name);
 	free(info);

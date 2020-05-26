@@ -40,6 +40,8 @@ void nli_display(name_list * list);//Affiche la liste sous un format lisible dan
 
 void nli_info_free(name_info * info);//Libère la mémoire allouée à ces informations
 
+void nli_warn(name_list * list);//Analyse une liste de variable avant sa destruction et lève des warnings si nécessaire
+
 void nli_free(name_list * list);//Libère la mémoire allouée à cette liste et ses éléments
 
 void myncpy(char * dest,char * src,int n);//idem à strcpy pour les char * non constant
