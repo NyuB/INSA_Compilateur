@@ -1,18 +1,24 @@
 main()
-{ int i, j,k ,r,d;
-i =3 ;
-j=2 ;
-k=8 ;
-printf (i) ;
-r=(i+j)*(i+k/j) ;
-printf ( r ) ;
-	if(i){
-		int a;
-		int b;
-		printf(&j);
+{ 
+	int a =2;
+	int b=3;
+	if(a>b){
+		printf(a);
 	}
-	else {
-		int b=10;
-		printf(*j)
+	else{
+		printf(b);
+	};
+	if(a<b){
+		printf(a);
+	}
+	else{
+		printf(b);
+	};
+	a=a+1;
+	if(a==b){
+		printf(0);
+	}
+	else{
+		printf(b);
 	}
 }

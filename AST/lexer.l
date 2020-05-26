@@ -17,6 +17,8 @@ ADD \+
 SUB \-
 MUL \*
 DIV \/
+INF <
+SUP >
 EQ =
 REF &
 POPEN [(]
@@ -45,6 +47,8 @@ WHILE while
 {SUB} {printf(" t_sub ");return T_SUB;}
 {MUL} {printf(" t_mul ");return T_MUL;}
 {DIV} {printf(" t_div ");return T_DIV;}
+{SUP} {printf(" t_sup ");return T_SUP;}
+{INF} {printf(" t_inf ");return T_INF;}
 {EQ} {printf(" t_eq ");return T_EQ;}
 {REF} {printf("t_ref");return T_REF;}
 {POPEN} {printf(" t_popen ");return T_POPEN;}

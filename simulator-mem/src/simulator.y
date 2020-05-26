@@ -41,7 +41,7 @@ Instruction:
         {asm_add_2(COP, $2, $3);}
     | tAFC tNB tNB tNB
         {asm_add_2(AFC, $2, $3);}
-    | tJMP tNB tNB
+    | tJMP tNB tNB tNB
         {asm_add_1(JMP, $2);}
     | tJMF tNB tNB tNB
         {asm_add_2(JMF, $2, $3);}

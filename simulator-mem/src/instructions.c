@@ -128,7 +128,7 @@ int exec(int ip) {
         memory[arg1] = memory[arg2] < memory[arg3] ? 1 : 0;
         break;
     case SUP:
-        printf("INF @%d = @%d[%d] > @%d[%d] ? 1 : 0\n", arg1, arg2, memory[arg2], arg3, memory[arg3]);
+        printf("SUP @%d = @%d[%d] > @%d[%d] ? 1 : 0\n", arg1, arg2, memory[arg2], arg3, memory[arg3]);
         memory[arg1] = memory[arg2] > memory[arg3] ? 1 : 0;
         break;
     case EQU:

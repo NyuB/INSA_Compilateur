@@ -8,6 +8,9 @@
 #define ASM_MUL 2
 #define ASM_SUB 3
 #define ASM_DIV 4
+#define ASM_INF 9
+#define ASM_SUP 10
+#define ASM_EQ 11
 #define ASM_COP 5
 #define ASM_NULL -1
 %}
@@ -22,7 +25,7 @@
 %left T_SUB
 %left T_MUL T_DIV
 
-%token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_REF T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA T_WHILE T_IF T_ELSE
+%token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_SUP T_INF T_REF T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA T_WHILE T_IF T_ELSE
 
 
 %union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s;}
@@ -70,10 +73,13 @@ STARS : T_MUL {$$=1;}
 EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variable
     |T_POPEN EXPR T_PCLOSE {$$ = $2;} //Propagation du noeud
     |T_INT {printf("INT-EXPR\n"); $$ = ast_int($1);}//Noeud feuille constante
-    |EXPR T_ADD EXPR {printf("EXPR\n"); $$ = ast_math(ASM_ADD, $1, $3);}//Noeud opération
-    |EXPR T_SUB EXPR {printf("EXPR\n"); $$ = ast_math(ASM_SUB, $1, $3);}//Noeud opération
-    |EXPR T_MUL EXPR {printf("EXPR\n"); $$ = ast_math(ASM_MUL, $1, $3);}//Noeud opération
-    |EXPR T_DIV EXPR {printf("EXPR\n"); $$ = ast_math(ASM_DIV, $1, $3);}//Noeud opération
+    |EXPR T_ADD EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_ADD, $1, $3);}//Noeud opération
+    |EXPR T_SUB EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_SUB, $1, $3);}//Noeud opération
+    |EXPR T_MUL EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_MUL, $1, $3);}//Noeud opération
+    |EXPR T_DIV EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_DIV, $1, $3);}//Noeud opération
+    |EXPR T_SUP EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_SUP, $1, $3);}//Noeud opération
+    |EXPR T_INF EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_INF, $1, $3);}//Noeud opération
+    |EXPR T_EQ T_EQ EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_EQ, $1, $4);}//Noeud opération
     |T_SUB EXPR {printf("MIN-EXPR\n");$$ = ast_math(ASM_SUB,ast_int(0),$2);}//Construction d'une négation par 0-expr
     |T_ADD EXPR {printf("PLUS-EXPR\n");$$ = $2;}
     |REF {$$ = $1;}

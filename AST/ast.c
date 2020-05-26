@@ -489,6 +489,18 @@ void ast_node_build(ast_node * node, build_data * datas){
 			ast_math_build("DIV",node,datas);
 			printf("[DEBUG]MATHOP DIV\n");	
 			break;
+		case AST_CODE_INF:
+			ast_math_build("INF",node,datas);
+			printf("[DEBUG]BOOLOP INF\n");	
+			break;
+		case AST_CODE_SUP:
+			ast_math_build("SUP",node,datas);
+			printf("[DEBUG]BOOLOP SUP\n");	
+			break;
+		case AST_CODE_EQ:
+			ast_math_build("EQU",node,datas);
+			printf("[DEBUG]BOOLOP EQ\n");	
+			break;
 		case AST_CODE_AFF:
 			ast_aff_build(node,datas);
 			printf("[DEBUG]AFFECT\n");	
