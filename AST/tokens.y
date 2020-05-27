@@ -21,17 +21,18 @@
     ast * tree;
 %}
 
+%left T_INF T_EQEQ T_SUP
 %left T_ADD
 %left T_SUB
 %left T_MUL T_DIV
 
-%token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_SUP T_INF T_REF T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA T_WHILE T_IF T_ELSE
+%token T_MAIN T_PRINTF T_CONST T_VAR T_ADD T_SUB T_MUL T_DIV T_EQ T_SUP T_INF T_EQEQ T_REF T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_INT T_NAME T_SEP T_COMMA T_WHILE T_IF T_ELSE
 
 
 %union {ast_node* n;ast_node_list * noli; name_list * nli; int i; char * s;}
 %type <s> T_NAME 
-%type <n> T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA EXPR REF UNREF CMD PRINT BLOC IF WHILE assignement declaration declare_assignement  
-%type <i>  T_ADD T_SUB T_MUL T_DIV T_INT T_IF T_ELSE T_WHILE STARS
+%type <n>  EXPR REF UNREF CMD PRINT BLOC CTRL IF WHILE assignement declaration declare_assignement  
+%type <i>  T_ADD T_SUB T_MUL T_DIV T_INF T_SUP T_EQEQ T_INT T_IF T_ELSE T_WHILE T_MAIN T_PRINTF T_CONST T_VAR T_EQ T_POPEN T_PCLOSE T_AOPEN T_ACLOSE T_COPEN T_CCLOSE T_SEP T_COMMA STARS
 %type <noli> BODY NAMELIST 
 %%
 
@@ -46,7 +47,11 @@ BODY : {$$ = ast_node_list_empty();}
     |CMD {ast_node_list * l = ast_node_list_empty();ast_node_list_append(l,$1);$$=l;}
     |CMD T_SEP BODY {ast_node_list * l = $3; ast_node_list_prepend(l,$1);$$=l;}
     |T_SEP BODY {$$ = $2;}
+    |CTRL BODY {ast_node_list * l = $2; ast_node_list_prepend(l,$1);$$=l;}
     ;
+CTRL : IF 
+	|WHILE
+	;
 
 IF : T_IF T_POPEN EXPR T_PCLOSE BLOC { $$ = ast_node_if($3,$5,NULL);}
 	|T_IF T_POPEN EXPR T_PCLOSE BLOC T_ELSE BLOC {$$ = ast_node_if($3,$5,$7);} 
@@ -58,8 +63,6 @@ CMD : declare_assignement
     |declaration
     |assignement
     |PRINT
-    |IF
-    |WHILE
     ;
 REF : T_REF T_NAME {printf("REF\n");$$ = ast_ref($2);}
 	;
@@ -79,7 +82,7 @@ EXPR : T_NAME {printf("NAME-EXPR\n"); $$ = ast_var($1); }//Noeud feuille variabl
     |EXPR T_DIV EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_DIV, $1, $3);}//Noeud opération
     |EXPR T_SUP EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_SUP, $1, $3);}//Noeud opération
     |EXPR T_INF EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_INF, $1, $3);}//Noeud opération
-    |EXPR T_EQ T_EQ EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_EQ, $1, $4);}//Noeud opération
+    |EXPR T_EQEQ EXPR {printf("EXPR\n"); $$ = ast_math(AST_CODE_EQ, $1, $3);}//Noeud opération
     |T_SUB EXPR {printf("MIN-EXPR\n");$$ = ast_math(ASM_SUB,ast_int(0),$2);}//Construction d'une négation par 0-expr
     |T_ADD EXPR {printf("PLUS-EXPR\n");$$ = $2;}
     |REF {$$ = $1;}
